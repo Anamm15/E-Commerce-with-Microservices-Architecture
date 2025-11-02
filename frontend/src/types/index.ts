@@ -49,6 +49,7 @@ export interface PaymentOption {
 }
 
 export type OrderStatus =
+  | "created"
   | "processing"
   | "shipping"
   | "completed"
@@ -60,6 +61,7 @@ export interface OrderItem {
   name: string;
   imageUrl: string;
   quantity: number;
+  price: number;
 }
 
 export interface Order {
@@ -68,8 +70,17 @@ export interface Order {
   status: OrderStatus;
   items: OrderItem[];
   total: number;
+  subtotal: number;
+  shippingCost: number;
   trackingNumber?: string;
   estimatedDelivery?: string;
+
+  shippingAddress: UserAddress;
+  paymentMethod: string;
+  statusHistory: {
+    status: OrderStatus;
+    date: string;
+  }[];
 }
 
 export interface UserAddress {

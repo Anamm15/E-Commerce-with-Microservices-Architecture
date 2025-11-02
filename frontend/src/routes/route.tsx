@@ -4,11 +4,12 @@ import LoginPage from "../pages/auth/login";
 import RegisterPage from "../pages/auth/register";
 import ForgotPasswordPage from "../pages/auth/forgot-password";
 import RecoveryPasswordPage from "../pages/auth/recovery-password";
-import DetailProdukPage from "../pages/DetailProduct";
+import DetailProdukPage from "../pages/ProductDetail";
 import CartPage from "../pages/Cart";
 import OrderTrackingPage from "../pages/OrderTracking";
 import ProfilePage from "../pages/Profile";
 import CheckoutPage from "../pages/Checkout";
+import OrderDetailPage from "../pages/OrderDetail";
 
 const router = createBrowserRouter([
   {
@@ -48,8 +49,12 @@ const router = createBrowserRouter([
     element: <CartPage />,
   },
   {
-    path: "/order-detail",
+    path: "/order",
     element: <OrderTrackingPage />,
+  },
+  {
+    path: "/order/:id",
+    element: <OrderDetailPage />,
   },
 ]);
 

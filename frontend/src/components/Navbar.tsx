@@ -82,7 +82,7 @@ const Navbar: React.FC = () => {
             </a>
 
             <a
-              href="/order-detail"
+              href="/order"
               className="relative text-gray-500 hover:text-blue-600 transition-colors"
             >
               <FiShoppingBag size={22} />

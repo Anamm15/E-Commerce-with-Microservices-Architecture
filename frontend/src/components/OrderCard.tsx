@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Order } from "../types";
 import {
   FiLoader,
@@ -41,18 +42,19 @@ interface OrderCardProps {
 
 const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
   const config = statusConfig[order.status];
+  const navigate = useNavigate();
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-gray-50 border-b border-gray-200">
         <div>
           <h2 className="text-base font-semibold text-gray-900">
-            Pesanan #{order.id}
+            Order #{order.id}
           </h2>
-          <p className="text-sm text-gray-500">Dipesan pada: {order.date}</p>
+          <p className="text-sm text-gray-500">Ordered on: {order.date}</p>
         </div>
         <div className="mt-2 sm:mt-0 text-left sm:text-right">
-          <span className="text-sm text-gray-500">Total Pesanan</span>
+          <span className="text-sm text-gray-500">Total:</span>
           <p className="text-lg font-bold text-gray-900">
             ${order.total.toFixed(2)}
           </p>
@@ -74,9 +76,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
               <h3 className="text-sm font-medium text-gray-900 truncate">
                 {item.name}
               </h3>
-              <p className="text-sm text-gray-500">
-                Kuantitas: {item.quantity}
-              </p>
+              <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
             </div>
           </div>
         ))}
@@ -93,8 +93,11 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
           {config.text}
         </span>
 
-        <button className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-500">
-          {order.status === "shipping" ? "Lacak Pesanan" : "Lihat Detail"}
+        <button
+          onClick={() => navigate(`/order/${order.id}`)}
+          className="flex items-center text-sm font-medium text-blue-600 hover:text-blue-500"
+        >
+          View Details
           <FiChevronRight className="ml-1" size={16} />
         </button>
       </div>
@@ -102,11 +105,11 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
       {order.status === "shipping" && (
         <div className="p-4 border-t border-gray-200 bg-blue-50">
           <p className="text-sm text-blue-700">
-            <span className="font-semibold">No. Resi:</span>{" "}
+            <span className="font-semibold">Tracking Number:</span>{" "}
             {order.trackingNumber}
           </p>
           <p className="text-sm text-blue-700 mt-1">
-            <span className="font-semibold">Estimasi Tiba:</span>{" "}
+            <span className="font-semibold">Estimated Delivery:</span>{" "}
             {order.estimatedDelivery}
           </p>
         </div>
