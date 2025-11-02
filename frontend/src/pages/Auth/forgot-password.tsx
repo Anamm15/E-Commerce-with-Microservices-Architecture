@@ -1,4 +1,4 @@
-import AuthLayout from "../../layouts/Auth";
+import AuthLayout from "../../layouts/auth";
 
 const ForgotPasswordPage = () => {
     return (

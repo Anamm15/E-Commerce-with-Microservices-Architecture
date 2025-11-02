@@ -1,0 +1,72 @@
+# ===============================
+# Go Build & Module Files
+# ===============================
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+bin/
+build/
+dist/
+*.out
+*.o
+*.a
+
+# Go workspace and module caches
+go.work
+go.work.sum
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+
+# ===============================
+# Logs & Temp Files
+# ===============================
+*.log
+*.tmp
+*.pid
+*.seed
+*.bak
+*.old
+*.orig
+
+# ===============================
+# Environment Files
+# ===============================
+.env
+.env.*
+!.env.example
+
+# ===============================
+# Dependency Manager
+# ===============================
+vendor/
+
+# ===============================
+# OS-specific files
+# ===============================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ===============================
+# Other common ignored folders
+# ===============================
+node_modules/
+coverage/
+tmp/
+cache/

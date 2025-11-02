@@ -1,93 +1,174 @@
-import React, { useEffect, useRef, useState } from "react";
-import logo from "../assets/img/logo.jpg"
-import Cookies from "js-cookie";
-import { NavLink } from "react-router-dom";
-import storeIcon from "../assets/icons/store-icon.svg";
+import React, { useState } from "react";
+import {
+  FiShoppingCart,
+  FiUser,
+  FiSearch,
+  FiMenu,
+  FiX,
+  FiShoppingBag,
+} from "react-icons/fi";
 
 const Navbar: React.FC = () => {
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const hamburgerMenuRef = useRef<HTMLButtonElement>(null);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const menuLinksRef: React.MutableRefObject<NodeListOf<HTMLAnchorElement> | null> = 
-    React.useRef(document.querySelectorAll('a') as NodeListOf<HTMLAnchorElement>);
-
-
-  useEffect(() => {
-    const hamburgerMenu = hamburgerMenuRef.current;
-    const mobileMenu = mobileMenuRef.current;
-
-    if (hamburgerMenu && mobileMenu) {
-      const handleClick = () => {
-        if (mobileMenu.classList.contains("hidden")) {
-          mobileMenu.classList.remove("hidden");
-          setTimeout(() => {
-            mobileMenu.classList.remove("-translate-y-full", "opacity-0");
-            mobileMenu.classList.add("translate-y-0", "opacity-100");
-          }, 10);
-        } else {
-          mobileMenu.classList.remove("translate-y-0", "opacity-100");
-          mobileMenu.classList.add("-translate-y-full", "opacity-0");
-          setTimeout(() => {
-            mobileMenu.classList.add("hidden");
-          }, 300);
-        }
-      };
-
-      hamburgerMenu.addEventListener("click", handleClick);
-      return () => {
-        hamburgerMenu.removeEventListener("click", handleClick);
-      };
-    }
-  }, []);
-
-  useEffect(() => {
-      const session = Cookies.get('session');
-      if (session) setIsLoggedIn(true);
-  }, []);
-
-  useEffect(() => {
-    const menuLinks = document.querySelectorAll("ul li a") as NodeListOf<HTMLAnchorElement>;
-    const currentUrl = window.location.pathname;
-
-    menuLinksRef.current = menuLinks;
-
-    menuLinks.forEach((link) => {
-      if (link.getAttribute("href") === currentUrl) {
-        link.classList.add("text-blue-800", "active");
-      }
-    });
-  }, []);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const cartItemCount = 3;
 
   return (
-    <nav className="fixed z-50 w-screen top-0 bg-gradient-to-r from-primary-1 to-primary-2 left-1/2 -translate-x-1/2 text-white">
-      <div className="container mx-auto flex justify-between items-center py-4 lg:h-24 px-4">
-        <div>
-            <a href="/" className="font-bold text-base lg:text-lg xl:text-xl 2xl:text-2xl">
-                <img src={logo} alt="" className="w-20 h-20" />
+    <nav
+      className="
+      sticky top-0 z-50 w-full
+      bg-white/70 backdrop-blur-md 
+      shadow-sm
+    "
+    >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex-shrink-0">
+            <a
+              href="/"
+              className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+            >
+              E-Store
             </a>
+          </div>
+
+          <div className="hidden md:flex md:space-x-8">
+            <a
+              href="/category/men"
+              className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+            >
+              Pria
+            </a>
+            <a
+              href="/category/women"
+              className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+            >
+              Wanita
+            </a>
+            <a
+              href="/category/electronics"
+              className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
+            >
+              Elektronik
+            </a>
+            <a
+              href="/deals"
+              className="text-red-500 hover:text-red-700 transition-colors font-medium"
+            >
+              Promo
+            </a>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <button className="hidden md:block text-gray-500 hover:text-blue-600 transition-colors">
+              <FiSearch size={22} />
+            </button>
+
+            <a
+              href="/cart"
+              className="relative text-gray-500 hover:text-blue-600 transition-colors"
+            >
+              <FiShoppingCart size={22} />
+              {cartItemCount > 0 && (
+                <span
+                  className="
+                  absolute -top-2 -right-2 w-5 h-5 
+                  rounded-full bg-red-500 text-white 
+                  text-xs flex items-center justify-center
+                "
+                >
+                  {cartItemCount}
+                </span>
+              )}
+            </a>
+
+            <a
+              href="/order-detail"
+              className="relative text-gray-500 hover:text-blue-600 transition-colors"
+            >
+              <FiShoppingBag size={22} />
+            </a>
+
+            <a
+              href="/profile"
+              className="hidden md:block text-gray-500 hover:text-blue-600 transition-colors"
+            >
+              <FiUser size={22} />
+            </a>
+
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="text-gray-600 focus:outline-none"
+              >
+                {isMobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="w-3/5 text-gray-500">
-            <input type="text" placeholder="Cari produk" className="w-full py-2 text-lg rounded-sm px-4 focus:outline-none border border-gray-300 " />
-        </div>
-        <div className="flex gap-8 text-xl items-center">
-            {
-                isLoggedIn ? (
-                    <>
-                        <NavLink to="/dashboard" className="hover:text-blue-800">
-                            <img src={storeIcon} alt="" />
-                        </NavLink>
-                        <NavLink to="/profile" className="hover:text-blue-800">Profile</NavLink>
-                        <NavLink to="/logout" className="hover:text-blue-800">Logout</NavLink>
-                    </>
-                ) : (
-                    <>
-                        <NavLink to="/login" className="hover:text-blue-800">Login</NavLink>
-                        <NavLink to="/register" className="hover:text-blue-800">Register</NavLink>
-                    </>
-                )
-            }
+      </div>
+
+      {/* --- MOBILE MENU --- */}
+      <div
+        className={`
+          md:hidden absolute top-16 left-0 w-full 
+          bg-white/95 backdrop-blur-md shadow-lg
+          transition-all duration-300 ease-in-out
+          ${
+            isMobileMenuOpen
+              ? "translate-y-0 opacity-100"
+              : "-translate-y-4 opacity-0 pointer-events-none"
+          }
+        `}
+      >
+        <div className="px-4 pt-2 pb-4 space-y-2">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Cari produk..."
+              className="
+                w-full pl-10 pr-4 py-2 
+                rounded-full border border-gray-300 
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+              "
+            />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <FiSearch size={20} />
+            </span>
+          </div>
+
+          <a
+            href="/category/men"
+            className="block py-2 px-3 text-lg text-gray-700 hover:bg-gray-100 rounded-md"
+          >
+            Pria
+          </a>
+          <a
+            href="/category/women"
+            className="block py-2 px-3 text-lg text-gray-700 hover:bg-gray-100 rounded-md"
+          >
+            Wanita
+          </a>
+          <a
+            href="/category/electronics"
+            className="block py-2 px-3 text-lg text-gray-700 hover:bg-gray-100 rounded-md"
+          >
+            Elektronik
+          </a>
+          <a
+            href="/deals"
+            className="block py-2 px-3 text-lg text-red-500 hover:bg-gray-100 rounded-md"
+          >
+            Promo
+          </a>
+
+          <hr className="my-2 border-gray-200" />
+
+          <a
+            href="/profile"
+            className="block py-2 px-3 text-lg text-gray-700 hover:bg-gray-100 rounded-md"
+          >
+            Akun Saya
+          </a>
         </div>
       </div>
     </nav>

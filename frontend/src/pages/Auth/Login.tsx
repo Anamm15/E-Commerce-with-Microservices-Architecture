@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AuthLayout from "../../layouts/Auth";
+import AuthLayout from "../../layouts/auth";
 import { login } from "../../services/api/user";
 import { NavLink, useNavigate } from "react-router-dom";
 
@@ -19,7 +19,7 @@ const LoginPage = () => {
         try {
             const res = await login({ username, password });
             if (res.status === 200) {
-                localStorage.setItem('token', res.data.token);
+                localStorage.setItem('token', res.data.accessToken);
                 navigate('/');
             }
         } catch {
