@@ -70,3 +70,4 @@ node_modules/
 coverage/
 tmp/
 cache/
+configs/serviceAccountKey.json
