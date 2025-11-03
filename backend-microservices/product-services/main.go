@@ -1,76 +1,64 @@
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-*.test
+package main
 
-# Build directories
-bin/
-build/
-dist/
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
 
-# Compiled object files, caches, etc.
-*.o
-*.a
-*.out
+	"product-services/configs"
+	"product-services/controllers"
+	// "product-services/migrations"
+	"product-services/repositories"
+	"product-services/routes"
+	"product-services/services"
+	"product-services/storages"
 
-# Go workspace and module caches
-go.work
-go.work.sum
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"gorm.io/gorm"
+)
 
-# Local development environment
-.vscode/
-.idea/
-*.swp
+func main() {
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "development"
+	}
+	envFile := fmt.Sprintf(".env.%s", env)
+	if err := godotenv.Load(envFile); err != nil {
+		log.Printf("⚠️  Cannot load file %s, Trying .env default...", envFile)
+		_ = godotenv.Load(".env")
+	}
 
-# ===============================
-# Logs & Temp Files
-# ===============================
-*.log
-*.tmp
-*.pid
-*.seed
-*.bak
-*.old
-*.orig
+	server := gin.Default()
+	ctx := context.Background()
+	storage, err := storages.NewFirebaseStorage(ctx)
+	if err != nil {
+		log.Fatalf("Gagal menginisialisasi Firebase Storage: %v", err)
+	}
 
-# ===============================
-# Environment & Config Files
-# ===============================
-# Ignore all .env files except example and environment templates
-.env
-.env.*
-!.env.example
-!.env.production
-!.env.development
-!.env.test
+	var (
+		db                 *gorm.DB                        = config.ConnectDatabase()
+		categoryRepository repositories.CategoryRepository = repositories.NewCategoryRepository(db)
+		productRepository  repositories.ProductRepository  = repositories.NewProductRepository(db)
+		imageRepository    repositories.ImageRepository    = repositories.NewImageRepository(db)
+		reviewRepository   repositories.ReviewRepository   = repositories.NewReviewRepository(db)
 
-# ===============================
-# Dependency Manager (if any)
-# ===============================
-vendor/
+		categoryService services.CategoryService = services.NewCategoryService(categoryRepository)
+		productService  services.ProductService  = services.NewProductService(categoryRepository, productRepository, imageRepository, storage)
+		reviewService   services.ReviewService   = services.NewReviewService(reviewRepository)
 
-# ===============================
-# OS-specific files
-# ===============================
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
+		categoryController controllers.CategoryController = controllers.NewCategoryController(categoryService)
+		productController  controllers.ProductController  = controllers.NewProductController(productService)
+		reviewController   controllers.ReviewController   = controllers.NewReviewController(reviewService)
+	)
 
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+	routes.ProductRoutes(server, productController)
+	routes.CategoryRoutes(server, categoryController)
+	routes.ReviewRoutes(server, reviewController)
+	// if err := migrations.Seeder(db); err != nil {
+	// 	log.Fatalf("error migration seeder: %v", err)
+	// }
 
-# Linux
-*~
-
-# ===============================
-# Other common ignored folders
-# ===============================
-node_modules/
-coverage/
-tmp/
-cache/
+	server.Run(":10000")
+}
