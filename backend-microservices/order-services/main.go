@@ -1,76 +1,48 @@
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-*.test
+package main
 
-# Build directories
-bin/
-build/
-dist/
+import (
+	"fmt"
+	"log"
+	"os"
 
-# Compiled object files, caches, etc.
-*.o
-*.a
-*.out
+	"order-services/configs"
+	"order-services/controllers"
+	// "order-services/migrations"
+	"order-services/repositories"
+	"order-services/routes"
+	"order-services/services"
 
-# Go workspace and module caches
-go.work
-go.work.sum
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"gorm.io/gorm"
+)
 
-# Local development environment
-.vscode/
-.idea/
-*.swp
+func main() {
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "development"
+	}
 
-# ===============================
-# Logs & Temp Files
-# ===============================
-*.log
-*.tmp
-*.pid
-*.seed
-*.bak
-*.old
-*.orig
+	envFile := fmt.Sprintf(".env.%s", env)
 
-# ===============================
-# Environment & Config Files
-# ===============================
-# Ignore all .env files except example and environment templates
-.env
-.env.*
-!.env.example
-!.env.production
-!.env.development
-!.env.test
+	if err := godotenv.Load(envFile); err != nil {
+		log.Printf("⚠️  Cannot load file %s, Trying .env default...", envFile)
+		_ = godotenv.Load(".env")
+	}
 
-# ===============================
-# Dependency Manager (if any)
-# ===============================
-vendor/
+	server := gin.Default()
 
-# ===============================
-# OS-specific files
-# ===============================
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
+	var (
+		db              *gorm.DB                     = config.ConnectDatabase()
+		orderRepository repositories.OrderRepository = repositories.NewOrderRepository(db)
+		orderService    services.OrderService        = services.NewOrderService(orderRepository)
+		orderController controllers.OrderController  = controllers.NewOrderController(orderService)
+	)
+	routes.UserRoute(server, orderController)
 
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+	// if err := migrations.Seeder(db); err != nil {
+	// 	log.Fatalf("error migration seeder: %v", err)
+	// }
 
-# Linux
-*~
-
-# ===============================
-# Other common ignored folders
-# ===============================
-node_modules/
-coverage/
-tmp/
-cache/
+	server.Run(":10000")
+}
