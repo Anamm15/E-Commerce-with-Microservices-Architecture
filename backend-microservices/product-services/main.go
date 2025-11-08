@@ -9,11 +9,12 @@ import (
 
 	"product-services/internal/configs"
 	"product-services/internal/controllers"
-	// "product-services/internal/controllers"
+	"product-services/internal/kafka"
 	"product-services/internal/repositories"
 	"product-services/internal/services"
 	"product-services/internal/storages"
-	pb "product-services/pb"
+	productpb "product-services/pb"
+	userpb "product-services/pb/user"
 
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -36,7 +37,23 @@ func main() {
 		log.Fatalf("Failed to connect to Firebase: %v", err)
 	}
 
+	//🔹Initializing connection to user service
+	userServiceAddr := os.Getenv("USER_SERVICE_ADDR")
+	if userServiceAddr == "" {
+		userServiceAddr = "localhost:10001" // gRPC port user-service
+	}
+	userConn, err := grpc.Dial(userServiceAddr, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("failed to connect to user service: %v", err)
+	}
+	defer userConn.Close()
+	userClient := userpb.NewUserServiceClient(userConn)
+
 	db := configs.ConnectDatabase()
+
+	kafkaProducer := kafka.NewKafkaProducer()
+	defer kafkaProducer.Close()
+
 	categoryRepository := repositories.NewCategoryRepository(db)
 	productRepository := repositories.NewProductRepository(db)
 	imageRepository := repositories.NewImageRepository(db)
@@ -44,7 +61,7 @@ func main() {
 
 	categoryService := services.NewCategoryService(categoryRepository)
 	productService := services.NewProductService(categoryRepository, productRepository, imageRepository, storage)
-	reviewService := services.NewReviewService(reviewRepository)
+	reviewService := services.NewReviewService(reviewRepository, userClient)
 
 	categoryController := controllers.NewCategoryServer(categoryService)
 	productController := controllers.NewProductServer(productService)
@@ -62,13 +79,9 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	pb.RegisterCategoryServiceServer(grpcServer, categoryController)
-	pb.RegisterProductServiceServer(grpcServer, productController)
-	pb.RegisterReviewServiceServer(grpcServer, reviewController)
-
-	// if err := migrations.Seeder(db); err != nil {
-	// 	 log.Fatalf("error migration seeder: %v", err)
-	// }
+	productpb.RegisterCategoryServiceServer(grpcServer, categoryController)
+	productpb.RegisterProductServiceServer(grpcServer, productController)
+	productpb.RegisterReviewServiceServer(grpcServer, reviewController)
 
 	log.Printf("🚀 gRPC server (ProductService) listening at %v", lis.Addr())
 	if err := grpcServer.Serve(lis); err != nil {

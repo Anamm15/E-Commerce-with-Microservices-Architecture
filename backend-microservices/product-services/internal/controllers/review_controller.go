@@ -32,11 +32,17 @@ func (s *ReviewServer) GetAllReviews(ctx context.Context, req *emptypb.Empty) (*
 
 	var res pb.ReviewListResponse
 	for _, review := range reviews {
+		var userReview pb.UserReview
+		userReview.Id = uint32(review.User.ID)
+		userReview.FullName = review.User.FullName
+		userReview.AvatarUrl = review.User.AvatarUrl
+
 		res.Reviews = append(res.Reviews, &pb.ReviewResponse{
 			Id:      uint32(review.ID),
 			Rating:  int32(review.Rating),
 			Date:    timestamppb.New(review.Date),
 			Comment: review.Comment,
+			User:    &userReview,
 		})
 	}
 
@@ -53,11 +59,17 @@ func (s *ReviewServer) GetReviewByProductID(ctx context.Context, req *pb.GetRevi
 
 	var res pb.ReviewListResponse
 	for _, review := range reviews {
+		var userReview pb.UserReview
+		userReview.Id = uint32(review.User.ID)
+		userReview.FullName = review.User.FullName
+		userReview.AvatarUrl = review.User.AvatarUrl
+
 		res.Reviews = append(res.Reviews, &pb.ReviewResponse{
 			Id:      uint32(review.ID),
 			Rating:  int32(review.Rating),
 			Date:    timestamppb.New(review.Date),
 			Comment: review.Comment,
+			User:    &userReview,
 		})
 	}
 
