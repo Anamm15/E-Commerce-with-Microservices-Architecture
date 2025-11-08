@@ -9,6 +9,7 @@ import (
 
 type UserService interface {
 	GetAllUsers(ctx context.Context) ([]dto.UserResponseDTO, error)
+	GetUserByID(ctx context.Context, userId uint64) (dto.UserResponseDTO, error)
 	GetUserByUsername(ctx context.Context, username string) (dto.UserResponseDTO, error)
 	CreateUser(ctx context.Context, user dto.UserCreateDTO) (dto.UserResponseDTO, error)
 	UpdateUser(ctx context.Context, user dto.UserUpdateDTO) (dto.UserResponseDTO, error)
@@ -27,6 +28,14 @@ func NewUserService(userRepository repositories.UserRepository) UserService {
 
 func (s *userService) GetAllUsers(ctx context.Context) ([]dto.UserResponseDTO, error) {
 	return s.userRepository.FindAllUsers(ctx)
+}
+
+func (s *userService) GetUserByID(ctx context.Context, userId uint64) (dto.UserResponseDTO, error) {
+	user, err := s.userRepository.FindUserByID(ctx, userId)
+	if err != nil {
+		return dto.UserResponseDTO{}, err
+	}
+	return user, nil
 }
 
 func (s *userService) GetUserByUsername(ctx context.Context, username string) (dto.UserResponseDTO, error) {

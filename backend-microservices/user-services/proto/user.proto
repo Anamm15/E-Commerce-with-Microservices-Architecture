@@ -58,6 +58,10 @@ message UserList {
   repeated UserResponse users = 1;
 }
 
+message GetUserRequest {
+  uint64 id = 1;
+}
+
 // -------------------
 //  Service Definition
 // -------------------
@@ -65,6 +69,7 @@ message UserList {
 service UserService {
   rpc CreateUser (UserCreateRequest) returns (UserResponse);
   rpc GetUserByUsername (GetUserByUsernameRequest) returns (UserResponse);
+  rpc GetUserByID(GetUserRequest) returns (UserResponse);
   rpc GetAllUsers (Empty) returns (UserList);
   rpc UpdateUser (UserUpdateRequest) returns (UserResponse);
   rpc DeleteUser (UserDeleteRequest) returns (Empty);

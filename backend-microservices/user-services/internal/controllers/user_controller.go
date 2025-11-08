@@ -58,6 +58,23 @@ func (c *UserController) GetUserByUsername(ctx context.Context, req *pb.GetUserB
 	}, nil
 }
 
+func (c *UserController) GetUserByID(ctx context.Context, req *pb.GetUserRequest) (*pb.UserResponse, error) {
+	user, err := c.service.GetUserByID(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.UserResponse{
+		Id:        uint64(user.ID),
+		FullName:  user.FullName,
+		Username:  user.Username,
+		Email:     user.Email,
+		AvatarUrl: user.AvatarUrl,
+		Role:      user.Role,
+		// MemberSince: timestamppb.New(user.CreatedAt),
+	}, nil
+}
+
 func (c *UserController) GetAllUsers(ctx context.Context, _ *pb.Empty) (*pb.UserList, error) {
 	users, err := c.service.GetAllUsers(ctx)
 	if err != nil {
