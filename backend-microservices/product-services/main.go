@@ -6,13 +6,13 @@ import (
 	"log"
 	"net"
 	"os"
-
 	"product-services/internal/configs"
 	"product-services/internal/controllers"
 	"product-services/internal/kafka"
 	"product-services/internal/repositories"
 	"product-services/internal/services"
 	"product-services/internal/storages"
+
 	productpb "product-services/pb"
 	userpb "product-services/pb/user"
 

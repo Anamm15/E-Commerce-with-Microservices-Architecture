@@ -2,10 +2,10 @@ package services
 
 import (
 	"context"
-
 	"product-services/internal/dto"
 	"product-services/internal/models"
 	"product-services/internal/repositories"
+
 	pbUser "product-services/pb/user"
 )
 
