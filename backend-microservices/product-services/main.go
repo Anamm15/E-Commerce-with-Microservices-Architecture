@@ -4,19 +4,19 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"os"
 
-	"product-services/configs"
-	"product-services/controllers"
-	// "product-services/migrations"
-	"product-services/repositories"
-	"product-services/routes"
-	"product-services/services"
-	"product-services/storages"
+	"product-services/internal/configs"
+	"product-services/internal/controllers"
+	// "product-services/internal/controllers"
+	"product-services/internal/repositories"
+	"product-services/internal/services"
+	"product-services/internal/storages"
+	pb "product-services/pb"
 
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"gorm.io/gorm"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -30,35 +30,48 @@ func main() {
 		_ = godotenv.Load(".env")
 	}
 
-	server := gin.Default()
 	ctx := context.Background()
 	storage, err := storages.NewFirebaseStorage(ctx)
 	if err != nil {
-		log.Fatalf("Gagal menginisialisasi Firebase Storage: %v", err)
+		log.Fatalf("Failed to connect to Firebase: %v", err)
 	}
 
-	var (
-		db                 *gorm.DB                        = config.ConnectDatabase()
-		categoryRepository repositories.CategoryRepository = repositories.NewCategoryRepository(db)
-		productRepository  repositories.ProductRepository  = repositories.NewProductRepository(db)
-		imageRepository    repositories.ImageRepository    = repositories.NewImageRepository(db)
-		reviewRepository   repositories.ReviewRepository   = repositories.NewReviewRepository(db)
+	db := configs.ConnectDatabase()
+	categoryRepository := repositories.NewCategoryRepository(db)
+	productRepository := repositories.NewProductRepository(db)
+	imageRepository := repositories.NewImageRepository(db)
+	reviewRepository := repositories.NewReviewRepository(db)
 
-		categoryService services.CategoryService = services.NewCategoryService(categoryRepository)
-		productService  services.ProductService  = services.NewProductService(categoryRepository, productRepository, imageRepository, storage)
-		reviewService   services.ReviewService   = services.NewReviewService(reviewRepository)
+	categoryService := services.NewCategoryService(categoryRepository)
+	productService := services.NewProductService(categoryRepository, productRepository, imageRepository, storage)
+	reviewService := services.NewReviewService(reviewRepository)
 
-		categoryController controllers.CategoryController = controllers.NewCategoryController(categoryService)
-		productController  controllers.ProductController  = controllers.NewProductController(productService)
-		reviewController   controllers.ReviewController   = controllers.NewReviewController(reviewService)
-	)
+	categoryController := controllers.NewCategoryServer(categoryService)
+	productController := controllers.NewProductServer(productService)
+	reviewController := controllers.NewReviewServer(reviewService)
 
-	routes.ProductRoutes(server, productController)
-	routes.CategoryRoutes(server, categoryController)
-	routes.ReviewRoutes(server, reviewController)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "10002"
+	}
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	grpcServer := grpc.NewServer()
+
+	pb.RegisterCategoryServiceServer(grpcServer, categoryController)
+	pb.RegisterProductServiceServer(grpcServer, productController)
+	pb.RegisterReviewServiceServer(grpcServer, reviewController)
+
 	// if err := migrations.Seeder(db); err != nil {
-	// 	log.Fatalf("error migration seeder: %v", err)
+	// 	 log.Fatalf("error migration seeder: %v", err)
 	// }
 
-	server.Run(":10000")
+	log.Printf("🚀 gRPC server (ProductService) listening at %v", lis.Addr())
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalf("failed to serve gRPC: %v", err)
+	}
 }
