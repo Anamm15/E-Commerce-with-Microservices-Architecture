@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+
 	"product-services/internal/dto"
 	"product-services/internal/models"
 	"product-services/internal/repositories"
@@ -11,10 +12,10 @@ import (
 
 type ReviewService interface {
 	GetAllReviews(ctx context.Context) ([]dto.ReviewResponseDTO, error)
-	GetReviewProductID(ctx context.Context, productID uint) ([]dto.ReviewResponseDTO, error)
+	GetReviewProductID(ctx context.Context, productID uint64) ([]dto.ReviewResponseDTO, error)
 	CreateReview(ctx context.Context, reviewRequest dto.CreateReviewRequestDTO) (dto.ReviewResponseDTO, error)
-	UpdateReview(ctx context.Context, reviewID uint, reviewRequest dto.UpdateReviewRequestDTO) (dto.ReviewResponseDTO, error)
-	DeleteReview(ctx context.Context, reviewID uint) error
+	UpdateReview(ctx context.Context, reviewID uint64, reviewRequest dto.UpdateReviewRequestDTO) (dto.ReviewResponseDTO, error)
+	DeleteReview(ctx context.Context, reviewID uint64, userID uint64) error
 }
 
 type reviewService struct {
@@ -41,7 +42,7 @@ func (s *reviewService) GetAllReviews(ctx context.Context) ([]dto.ReviewResponse
 	for i, r := range reviews {
 		userResp, err := s.userClient.GetUserByID(ctx, &pbUser.GetUserRequest{Id: uint64(r.ID)})
 		if err == nil {
-			reviews[i].User.ID = uint(userResp.Id)
+			reviews[i].User.ID = userResp.Id
 			reviews[i].User.FullName = userResp.FullName
 			reviews[i].User.AvatarUrl = userResp.AvatarUrl
 		}
@@ -50,16 +51,16 @@ func (s *reviewService) GetAllReviews(ctx context.Context) ([]dto.ReviewResponse
 	return reviews, nil
 }
 
-func (s *reviewService) GetReviewProductID(ctx context.Context, productID uint) ([]dto.ReviewResponseDTO, error) {
+func (s *reviewService) GetReviewProductID(ctx context.Context, productID uint64) ([]dto.ReviewResponseDTO, error) {
 	reviews, err := s.reviewRepository.GetReviewByProductId(ctx, productID)
 	if err != nil {
 		return nil, err
 	}
 
 	for i, r := range reviews {
-		userResp, err := s.userClient.GetUserByID(ctx, &pbUser.GetUserRequest{Id: uint64(r.ID)})
+		userResp, err := s.userClient.GetUserByID(ctx, &pbUser.GetUserRequest{Id: r.ID})
 		if err == nil {
-			reviews[i].User.ID = uint(userResp.Id)
+			reviews[i].User.ID = userResp.Id
 			reviews[i].User.FullName = userResp.FullName
 			reviews[i].User.AvatarUrl = userResp.AvatarUrl
 		}
@@ -77,7 +78,7 @@ func (s *reviewService) CreateReview(ctx context.Context, reviewRequest dto.Crea
 	return s.reviewRepository.CreateReview(ctx, &review)
 }
 
-func (s *reviewService) UpdateReview(ctx context.Context, reviewID uint, reviewRequest dto.UpdateReviewRequestDTO) (dto.ReviewResponseDTO, error) {
+func (s *reviewService) UpdateReview(ctx context.Context, reviewID uint64, reviewRequest dto.UpdateReviewRequestDTO) (dto.ReviewResponseDTO, error) {
 	review := models.Review{
 		ID:        reviewID,
 		ProductID: reviewRequest.ProductID,
@@ -87,6 +88,6 @@ func (s *reviewService) UpdateReview(ctx context.Context, reviewID uint, reviewR
 	return s.reviewRepository.UpdateReview(ctx, &review)
 }
 
-func (s *reviewService) DeleteReview(ctx context.Context, reviewID uint) error {
-	return s.reviewRepository.DeleteReview(ctx, reviewID)
+func (s *reviewService) DeleteReview(ctx context.Context, reviewID uint64, userID uint64) error {
+	return s.reviewRepository.DeleteReview(ctx, reviewID, userID)
 }

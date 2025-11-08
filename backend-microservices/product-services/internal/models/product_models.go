@@ -3,12 +3,12 @@ package models
 import "time"
 
 type Product struct {
-	ID          uint    `gorm:"primaryKey"`
+	ID          uint64  `gorm:"primaryKey"`
 	Name        string  `gorm:"not null"`
 	Description string  `gorm:"not null"`
 	Price       float32 `gorm:"not null"`
 	OldPrice    float32
-	Stock       int `gorm:"not null"`
+	Stock       int32 `gorm:"not null"`
 	Rating      float32
 	IsNew       bool `gorm:"default:false"`
 	Reviews     []Review

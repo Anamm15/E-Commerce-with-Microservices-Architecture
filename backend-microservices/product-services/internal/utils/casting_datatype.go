@@ -2,10 +2,10 @@ package utils
 
 import "strconv"
 
-func StringToUint(s string) uint {
-	i, err := strconv.ParseUint(s, 10, 32)
+func StringToUint(s string) uint64 {
+	i, err := strconv.ParseUint(s, 10, 64)
 	if err != nil {
 		return 0
 	}
-	return uint(i)
+	return i
 }

@@ -5,17 +5,18 @@ import (
 
 	"product-services/internal/dto"
 	"product-services/internal/models"
+	"product-services/internal/utils"
 
 	"gorm.io/gorm"
 )
 
 type ProductRepository interface {
 	GetAllProducts(ctx context.Context) ([]dto.ProductResponseDTO, error)
-	GetProductById(ctx context.Context, productId uint) (dto.ProductResponseDTO, error)
-	GetProductsByCategory(ctx context.Context, categoryId uint) ([]dto.ProductResponseDTO, error)
+	GetProductById(ctx context.Context, productId uint64) (dto.ProductResponseDTO, error)
+	GetProductsByCategory(ctx context.Context, categoryId uint64) ([]dto.ProductResponseDTO, error)
 	CreateProduct(ctx context.Context, product *models.Product) (dto.ProductResponseDTO, error)
 	UpdateProduct(ctx context.Context, product *models.Product) (dto.ProductResponseDTO, error)
-	DeleteProduct(ctx context.Context, productId uint) error
+	DeleteProduct(ctx context.Context, productId uint64) error
 }
 
 type productRepository struct {
@@ -37,32 +38,19 @@ func (r *productRepository) GetAllProducts(ctx context.Context) ([]dto.ProductRe
 	}
 
 	var productDTOs []dto.ProductResponseDTO
-	for _, p := range products {
-		var imageDTOs []dto.ImageResponseDTO
-		for _, img := range p.ImageUrl {
-			imageDTOs = append(imageDTOs, dto.ImageResponseDTO{
-				ID:  img.ID,
-				URL: img.URL,
-			})
-		}
-
-		var categoryDTOs []dto.CategoryResponseDTO
-		for _, c := range p.Category {
-			categoryDTOs = append(categoryDTOs, dto.CategoryResponseDTO{
-				ID:   c.ID,
-				Name: c.Name,
-			})
-		}
+	for _, product := range products {
+		categoryDTOs := utils.MapCategoryModelsToDTO(product)
+		imageDTOs := utils.MapImageModelsToDTO(product)
 
 		productDTOs = append(productDTOs, dto.ProductResponseDTO{
-			ID:          p.ID,
-			Name:        p.Name,
-			Description: p.Description,
-			Price:       p.Price,
-			OldPrice:    p.OldPrice,
-			Stock:       p.Stock,
-			Rating:      p.Rating,
-			IsNew:       p.IsNew,
+			ID:          product.ID,
+			Name:        product.Name,
+			Description: product.Description,
+			Price:       product.Price,
+			OldPrice:    product.OldPrice,
+			Stock:       product.Stock,
+			Rating:      product.Rating,
+			IsNew:       product.IsNew,
 			Category:    categoryDTOs,
 			ImageUrl:    imageDTOs,
 		})
@@ -71,7 +59,7 @@ func (r *productRepository) GetAllProducts(ctx context.Context) ([]dto.ProductRe
 	return productDTOs, nil
 }
 
-func (r *productRepository) GetProductById(ctx context.Context, productId uint) (dto.ProductResponseDTO, error) {
+func (r *productRepository) GetProductById(ctx context.Context, productId uint64) (dto.ProductResponseDTO, error) {
 	var product models.Product
 	if err := r.db.WithContext(ctx).
 		Preload("Category").
@@ -81,22 +69,8 @@ func (r *productRepository) GetProductById(ctx context.Context, productId uint) 
 		return dto.ProductResponseDTO{}, err
 	}
 
-	var imageDTOs []dto.ImageResponseDTO
-	for _, img := range product.ImageUrl {
-		imageDTOs = append(imageDTOs, dto.ImageResponseDTO{
-			ID:  img.ID,
-			URL: img.URL,
-		})
-	}
-
-	var categoryDTOs []dto.CategoryResponseDTO
-	for _, c := range product.Category {
-		categoryDTOs = append(categoryDTOs, dto.CategoryResponseDTO{
-			ID:   c.ID,
-			Name: c.Name,
-		})
-	}
-
+	categoryDTOs := utils.MapCategoryModelsToDTO(product)
+	imageDTOs := utils.MapImageModelsToDTO(product)
 	return dto.ProductResponseDTO{
 		ID:          product.ID,
 		Name:        product.Name,
@@ -111,7 +85,7 @@ func (r *productRepository) GetProductById(ctx context.Context, productId uint) 
 	}, nil
 }
 
-func (r *productRepository) GetProductsByCategory(ctx context.Context, categoryId uint) ([]dto.ProductResponseDTO, error) {
+func (r *productRepository) GetProductsByCategory(ctx context.Context, categoryId uint64) ([]dto.ProductResponseDTO, error) {
 	var products []models.Product
 	if err := r.db.WithContext(ctx).
 		Preload("Category").
@@ -122,32 +96,19 @@ func (r *productRepository) GetProductsByCategory(ctx context.Context, categoryI
 	}
 
 	var productDTOs []dto.ProductResponseDTO
-	for _, p := range products {
-		var imageDTOs []dto.ImageResponseDTO
-		for _, img := range p.ImageUrl {
-			imageDTOs = append(imageDTOs, dto.ImageResponseDTO{
-				ID:  img.ID,
-				URL: img.URL,
-			})
-		}
-
-		var categoryDTOs []dto.CategoryResponseDTO
-		for _, c := range p.Category {
-			categoryDTOs = append(categoryDTOs, dto.CategoryResponseDTO{
-				ID:   c.ID,
-				Name: c.Name,
-			})
-		}
+	for _, product := range products {
+		categoryDTOs := utils.MapCategoryModelsToDTO(product)
+		imageDTOs := utils.MapImageModelsToDTO(product)
 
 		productDTOs = append(productDTOs, dto.ProductResponseDTO{
-			ID:          p.ID,
-			Name:        p.Name,
-			Description: p.Description,
-			Price:       p.Price,
-			OldPrice:    p.OldPrice,
-			Stock:       p.Stock,
-			Rating:      p.Rating,
-			IsNew:       p.IsNew,
+			ID:          product.ID,
+			Name:        product.Name,
+			Description: product.Description,
+			Price:       product.Price,
+			OldPrice:    product.OldPrice,
+			Stock:       product.Stock,
+			Rating:      product.Rating,
+			IsNew:       product.IsNew,
 			Category:    categoryDTOs,
 			ImageUrl:    imageDTOs,
 		})
@@ -175,7 +136,8 @@ func (r *productRepository) CreateProduct(ctx context.Context, product *models.P
 }
 
 func (r *productRepository) UpdateProduct(ctx context.Context, product *models.Product) (dto.ProductResponseDTO, error) {
-	if err := r.db.Save(&product).Error; err != nil {
+	if err := r.db.WithContext(ctx).
+		Save(&product).Error; err != nil {
 		return dto.ProductResponseDTO{}, err
 	}
 
@@ -191,8 +153,10 @@ func (r *productRepository) UpdateProduct(ctx context.Context, product *models.P
 	}, nil
 }
 
-func (r *productRepository) DeleteProduct(ctx context.Context, productId uint) error {
-	if err := r.db.Where("id = ?", productId).Delete(&models.Product{}).Error; err != nil {
+func (r *productRepository) DeleteProduct(ctx context.Context, productId uint64) error {
+	if err := r.db.WithContext(ctx).
+		Where("id = ?", productId).
+		Delete(&models.Product{}).Error; err != nil {
 		return err
 	}
 	return nil

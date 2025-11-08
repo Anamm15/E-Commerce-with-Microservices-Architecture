@@ -2,15 +2,14 @@ package product
 
 import (
 	"net/http"
-	"strconv"
 
+	constants "api-gateway/internal/constants"
 	dto "api-gateway/internal/dto/product"
 	productpb "api-gateway/internal/pb/product"
 	"api-gateway/internal/utils"
 
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
-
 	"github.com/gin-gonic/gin"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 type ProductController interface {
@@ -34,63 +33,63 @@ func NewProductController(productClient productpb.ProductServiceClient) ProductC
 func (c *productController) GetAllProducts(ctx *gin.Context) {
 	products, err := c.productClient.GetAllProducts(ctx, &emptypb.Empty{})
 	if err != nil {
-		res := utils.BuildResponseFailed("Failed to get products", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrGetProducts, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("Products retrieved successfully", products.Products)
+	res := utils.BuildResponseSuccess(constants.SuccessGetProducts, products.Products)
 	ctx.JSON(http.StatusOK, res)
 }
 
 func (c *productController) GetProductById(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param(constants.ParamID)
 	if id == "" {
-		res := utils.BuildResponseFailed("Invalid request", "product id is required", nil)
+		res := utils.BuildResponseFailed(constants.ErrInvalidRequest, constants.ErrProductIDRequired, nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	productID, _ := strconv.ParseUint(id, 10, 64)
-	gRPCReq := &productpb.GetProductByIDRequest{Id: uint32(productID)}
+	productID := utils.StringToUint(id)
+	gRPCReq := &productpb.GetProductByIDRequest{Id: productID}
 
 	product, err := c.productClient.GetProductByID(ctx, gRPCReq)
 	if err != nil {
-		res := utils.BuildResponseFailed("Failed to get product", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrGetProduct, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("Product retrieved successfully", product.Product)
+	res := utils.BuildResponseSuccess(constants.SuccessGetProduct, product.Product)
 	ctx.JSON(http.StatusOK, res)
 }
 
 func (c *productController) GetProductByCategoryID(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param(constants.ParamID)
 	if id == "" {
-		res := utils.BuildResponseFailed("Invalid request", "category id is required", nil)
+		res := utils.BuildResponseFailed(constants.ErrInvalidRequest, constants.ErrCategoryIDRequired, nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	categoryID, _ := strconv.ParseUint(id, 10, 32)
-	gRPCReq := &productpb.GetProductByCategoryRequest{CategoryId: uint32(categoryID)}
+	categoryID := utils.StringToUint(id)
+	gRPCReq := &productpb.GetProductByCategoryRequest{CategoryId: categoryID}
 
 	products, err := c.productClient.GetProductByCategoryID(ctx, gRPCReq)
 	if err != nil {
-		res := utils.BuildResponseFailed("Failed to get products by category", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrGetProductsByCategory, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("Products retrieved successfully", products.Products)
+	res := utils.BuildResponseSuccess(constants.SuccessGetProducts, products.Products)
 	ctx.JSON(http.StatusOK, res)
 }
 
 func (c *productController) CreateProduct(ctx *gin.Context) {
 	var req dto.CreateProductRequestDTO
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		res := utils.BuildResponseFailed("Invalid request", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrInvalidRequest, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
@@ -99,75 +98,75 @@ func (c *productController) CreateProduct(ctx *gin.Context) {
 		Name:        req.Name,
 		Description: req.Description,
 		Price:       req.Price,
-		Stock:       int32(req.Stock),
+		Stock:       req.Stock,
 		Category:    req.Category,
 	}
 
 	product, err := c.productClient.CreateProduct(ctx, gRPCReq)
 	if err != nil {
-		res := utils.BuildResponseFailed("Failed to create product", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrCreateProduct, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("Product created successfully", product.Product)
+	res := utils.BuildResponseSuccess(constants.SuccessCreateProduct, product.Product)
 	ctx.JSON(http.StatusCreated, res)
 }
 
 func (c *productController) UpdateProduct(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param(constants.ParamID)
 	if id == "" {
-		res := utils.BuildResponseFailed("Invalid request", "product id is required", nil)
+		res := utils.BuildResponseFailed(constants.ErrInvalidRequest, constants.ErrProductIDRequired, nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	productID, _ := strconv.ParseUint(id, 10, 32)
 	var req dto.UpdateProductRequestDTO
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		res := utils.BuildResponseFailed("Invalid request", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrInvalidRequest, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
+	productID := utils.StringToUint(id)
 	gRPCReq := &productpb.UpdateProductRequest{
-		Id:          uint32(productID),
+		Id:          productID,
 		Name:        req.Name,
 		Description: req.Description,
 		Price:       req.Price,
-		Stock:       int32(req.Stock),
+		Stock:       req.Stock,
 		Category:    req.Category,
 	}
 
 	product, err := c.productClient.UpdateProduct(ctx, gRPCReq)
 	if err != nil {
-		res := utils.BuildResponseFailed("Failed to update product", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrUpdateProduct, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("Product updated successfully", product.Product)
+	res := utils.BuildResponseSuccess(constants.SuccessUpdateProduct, product.Product)
 	ctx.JSON(http.StatusOK, res)
 }
 
 func (c *productController) DeleteProduct(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param(constants.ParamID)
 	if id == "" {
-		res := utils.BuildResponseFailed("Invalid request", "product id is required", nil)
+		res := utils.BuildResponseFailed(constants.ErrInvalidRequest, constants.ErrProductIDRequired, nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	productID, _ := strconv.ParseUint(id, 10, 32)
-	gRPCReq := &productpb.DeleteProductRequest{Id: uint32(productID)}
+	productID := utils.StringToUint(id)
+	gRPCReq := &productpb.DeleteProductRequest{Id: productID}
 
 	_, err := c.productClient.DeleteProduct(ctx, gRPCReq)
 	if err != nil {
-		res := utils.BuildResponseFailed("Failed to delete product", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrDeleteProduct, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("Product deleted successfully", nil)
+	res := utils.BuildResponseSuccess(constants.SuccessDeleteProduct, nil)
 	ctx.JSON(http.StatusOK, res)
 }

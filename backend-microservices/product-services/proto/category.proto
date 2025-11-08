@@ -15,12 +15,12 @@ message CreateCategoryRequest {
 }
 
 message UpdateCategoryRequest {
-  uint32 id = 1;
+  uint64 id = 1;
   string name = 2;
 }
 
 message DeleteCategoryRequest {
-  uint32 id = 1;
+  uint64 id = 1;
 }
 
 // -------------------------------------
@@ -28,7 +28,7 @@ message DeleteCategoryRequest {
 // -------------------------------------
 
 message CategoryResponse {
-  uint32 id = 1;
+  uint64 id = 1;
   string name = 2;
 }
 

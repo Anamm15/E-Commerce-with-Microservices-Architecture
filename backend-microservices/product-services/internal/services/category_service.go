@@ -11,8 +11,8 @@ import (
 type CategoryService interface {
 	GetAllCategories(ctx context.Context) ([]dto.CategoryResponseDTO, error)
 	CreateCategory(ctx context.Context, categoryRequest dto.CreateCategoryRequestDTO) (dto.CategoryResponseDTO, error)
-	UpdateCategory(ctx context.Context, categoryID uint, categoryRequest dto.UpdateCategoryRequestDTO) (dto.CategoryResponseDTO, error)
-	DeleteCategory(ctx context.Context, categoryID uint) error
+	UpdateCategory(ctx context.Context, categoryID uint64, categoryRequest dto.UpdateCategoryRequestDTO) (dto.CategoryResponseDTO, error)
+	DeleteCategory(ctx context.Context, categoryID uint64) error
 }
 
 type categoryService struct {
@@ -44,7 +44,7 @@ func (s *categoryService) CreateCategory(ctx context.Context, categoryRequest dt
 	return categoryResponseDTO, nil
 }
 
-func (s *categoryService) UpdateCategory(ctx context.Context, categoryID uint, categoryRequest dto.UpdateCategoryRequestDTO) (dto.CategoryResponseDTO, error) {
+func (s *categoryService) UpdateCategory(ctx context.Context, categoryID uint64, categoryRequest dto.UpdateCategoryRequestDTO) (dto.CategoryResponseDTO, error) {
 	category := models.Category{Name: categoryRequest.Name}
 	categoryResponseDTO, err := s.categoryRepository.UpdateCategory(ctx, &category)
 	if err != nil {
@@ -53,6 +53,6 @@ func (s *categoryService) UpdateCategory(ctx context.Context, categoryID uint, c
 	return categoryResponseDTO, nil
 }
 
-func (s *categoryService) DeleteCategory(ctx context.Context, categoryID uint) error {
+func (s *categoryService) DeleteCategory(ctx context.Context, categoryID uint64) error {
 	return s.categoryRepository.DeleteCategory(ctx, categoryID)
 }

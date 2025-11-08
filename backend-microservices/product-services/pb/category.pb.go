@@ -68,7 +68,7 @@ func (x *CreateCategoryRequest) GetName() string {
 
 type UpdateCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -104,7 +104,7 @@ func (*UpdateCategoryRequest) Descriptor() ([]byte, []int) {
 	return file_proto_category_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *UpdateCategoryRequest) GetId() uint32 {
+func (x *UpdateCategoryRequest) GetId() uint64 {
 	if x != nil {
 		return x.Id
 	}
@@ -120,7 +120,7 @@ func (x *UpdateCategoryRequest) GetName() string {
 
 type DeleteCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -155,7 +155,7 @@ func (*DeleteCategoryRequest) Descriptor() ([]byte, []int) {
 	return file_proto_category_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *DeleteCategoryRequest) GetId() uint32 {
+func (x *DeleteCategoryRequest) GetId() uint64 {
 	if x != nil {
 		return x.Id
 	}
@@ -164,7 +164,7 @@ func (x *DeleteCategoryRequest) GetId() uint32 {
 
 type CategoryResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -200,7 +200,7 @@ func (*CategoryResponse) Descriptor() ([]byte, []int) {
 	return file_proto_category_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *CategoryResponse) GetId() uint32 {
+func (x *CategoryResponse) GetId() uint64 {
 	if x != nil {
 		return x.Id
 	}
@@ -266,12 +266,12 @@ const file_proto_category_proto_rawDesc = "" +
 	"\x15CreateCategoryRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\";\n" +
 	"\x15UpdateCategoryRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\rR\x02id\x12\x12\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"'\n" +
 	"\x15DeleteCategoryRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\rR\x02id\"6\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\"6\n" +
 	"\x10CategoryResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\rR\x02id\x12\x12\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"Q\n" +
 	"\x14CategoryListResponse\x129\n" +
 	"\n" +

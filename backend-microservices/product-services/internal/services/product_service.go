@@ -16,11 +16,11 @@ import (
 
 type ProductService interface {
 	GetAllProducts(ctx context.Context) ([]dto.ProductResponseDTO, error)
-	GetProductByID(ctx context.Context, productID uint) (dto.ProductResponseDTO, error)
-	GetProductByCategoryID(ctx context.Context, categoryID uint) ([]dto.ProductResponseDTO, error)
+	GetProductByID(ctx context.Context, productID uint64) (dto.ProductResponseDTO, error)
+	GetProductByCategoryID(ctx context.Context, categoryID uint64) ([]dto.ProductResponseDTO, error)
 	CreateProduct(ctx context.Context, productRequest dto.CreateProductRequestDTO) (dto.ProductResponseDTO, error)
-	UpdateProduct(ctx context.Context, productID uint, productRequest dto.UpdateProductRequestDTO) (dto.ProductResponseDTO, error)
-	DeleteProduct(ctx context.Context, productID uint) error
+	UpdateProduct(ctx context.Context, productID uint64, productRequest dto.UpdateProductRequestDTO) (dto.ProductResponseDTO, error)
+	DeleteProduct(ctx context.Context, productID uint64) error
 }
 
 type productService struct {
@@ -48,11 +48,11 @@ func (s *productService) GetAllProducts(ctx context.Context) ([]dto.ProductRespo
 	return s.productRepository.GetAllProducts(ctx)
 }
 
-func (s *productService) GetProductByID(ctx context.Context, productID uint) (dto.ProductResponseDTO, error) {
+func (s *productService) GetProductByID(ctx context.Context, productID uint64) (dto.ProductResponseDTO, error) {
 	return s.productRepository.GetProductById(ctx, productID)
 }
 
-func (s *productService) GetProductByCategoryID(ctx context.Context, categoryID uint) ([]dto.ProductResponseDTO, error) {
+func (s *productService) GetProductByCategoryID(ctx context.Context, categoryID uint64) ([]dto.ProductResponseDTO, error) {
 	return s.productRepository.GetProductsByCategory(ctx, categoryID)
 }
 
@@ -151,11 +151,19 @@ func (s *productService) CreateProduct(ctx context.Context, productRequest dto.C
 	return response, nil
 }
 
-func (s *productService) UpdateProduct(ctx context.Context, productID uint, productRequest dto.UpdateProductRequestDTO) (dto.ProductResponseDTO, error) {
-	product := models.Product{Name: productRequest.Name}
+func (s *productService) UpdateProduct(ctx context.Context, productID uint64, productRequest dto.UpdateProductRequestDTO) (dto.ProductResponseDTO, error) {
+	product := models.Product{
+		ID:          productID,
+		Name:        productRequest.Name,
+		Description: productRequest.Description,
+		Price:       productRequest.Price,
+		OldPrice:    productRequest.OldPrice,
+		Stock:       productRequest.Stock,
+		IsNew:       productRequest.IsNew,
+	}
 	return s.productRepository.UpdateProduct(ctx, &product)
 }
 
-func (s *productService) DeleteProduct(ctx context.Context, productID uint) error {
+func (s *productService) DeleteProduct(ctx context.Context, productID uint64) error {
 	return s.productRepository.DeleteProduct(ctx, productID)
 }

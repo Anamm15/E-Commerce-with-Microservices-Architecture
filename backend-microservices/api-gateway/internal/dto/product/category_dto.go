@@ -1,7 +1,7 @@
 package dto
 
 type CategoryResponseDTO struct {
-	ID   uint   `json:"id"`
+	ID   uint64 `json:"id"`
 	Name string `json:"name"`
 }
 

@@ -12,7 +12,7 @@ import "google/protobuf/timestamp.proto";
 // -------------------------------------
 
 message UserReview {
-  uint32 id = 1;
+  uint64 id = 1;
   string full_name = 2;
   string avatar_url = 3;
 }
@@ -22,26 +22,27 @@ message UserReview {
 // -------------------------------------
 
 message CreateReviewRequest {
-  uint32 product_id = 1;
-  uint32 user_id = 2;
+  uint64 product_id = 1;
+  uint64 user_id = 2;
   int32 rating = 3;
   string comment = 4;
 }
 
 message UpdateReviewRequest {
-  uint32 review_id = 1;
-  uint32 product_id = 2;
-  uint32 user_id = 3;
+  uint64 review_id = 1;
+  uint64 product_id = 2;
+  uint64 user_id = 3;
   int32 rating = 4;
   string comment = 5;
 }
 
 message GetReviewByProductRequest {
-  uint32 product_id = 1;
+  uint64 product_id = 1;
 }
 
 message DeleteReviewRequest {
-  uint32 review_id = 1;
+  uint64 review_id = 1;
+  uint64 user_id = 2;
 }
 
 // -------------------------------------
@@ -49,7 +50,7 @@ message DeleteReviewRequest {
 // -------------------------------------
 
 message ReviewResponse {
-  uint32 id = 1;
+  uint64 id = 1;
   int32 rating = 2;
   string comment = 3;
   google.protobuf.Timestamp date = 4;

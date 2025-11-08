@@ -12,7 +12,7 @@ import "proto/category.proto";
 // -------------------------------------
 
 message Image {
-  uint32 id = 1;
+  uint64 id = 1;
   string url = 2;
 }
 // -------------------------------------
@@ -22,7 +22,7 @@ message Image {
 message CreateProductRequest {
   string name = 1;
   string description = 2;
-  repeated uint32 category = 3;     
+  repeated uint64 category = 3;     
   float price = 4;
   float old_price = 5;
   int32 stock = 6;
@@ -31,10 +31,10 @@ message CreateProductRequest {
 }
 
 message UpdateProductRequest {
-  uint32 id = 1;
+  uint64 id = 1;
   string name = 2;
   string description = 3;
-  repeated uint32 category = 4;
+  repeated uint64 category = 4;
   float price = 5;
   float old_price = 6;
   int32 stock = 7;
@@ -42,15 +42,15 @@ message UpdateProductRequest {
 }
 
 message GetProductByIDRequest {
-  uint32 id = 1;
+  uint64 id = 1;
 }
 
 message GetProductByCategoryRequest {
-  uint32 category_id = 1;
+  uint64 category_id = 1;
 }
 
 message DeleteProductRequest {
-  uint32 id = 1;
+  uint64 id = 1;
 }
 
 // -------------------------------------
@@ -58,7 +58,7 @@ message DeleteProductRequest {
 // -------------------------------------
 
 message ProductResponse {
-  uint32 id = 1;
+  uint64 id = 1;
   string name = 2;
   string description = 3;
   float price = 4;

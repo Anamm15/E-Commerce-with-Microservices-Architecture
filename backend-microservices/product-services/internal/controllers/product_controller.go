@@ -3,8 +3,10 @@ package controllers
 import (
 	"context"
 
+	"product-services/internal/constants"
 	"product-services/internal/dto"
 	"product-services/internal/services"
+	"product-services/internal/utils"
 	pb "product-services/pb"
 
 	"google.golang.org/grpc/codes"
@@ -26,33 +28,19 @@ func NewProductServer(productService services.ProductService) *ProductServer {
 func (s *ProductServer) GetAllProducts(ctx context.Context, req *emptypb.Empty) (*pb.ProductListResponse, error) {
 	products, err := s.productService.GetAllProducts(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.NotFound, "failed to get products: %v", err)
-	}
-
-	var categories []*pb.CategoryResponse
-	for _, category := range products {
-		categories = append(categories, &pb.CategoryResponse{
-			Id:   uint32(category.ID),
-			Name: category.Name,
-		})
+		return nil, status.Errorf(codes.NotFound, constants.ErrProductServiceGet, err)
 	}
 
 	var res pb.ProductListResponse
 	for _, product := range products {
-		var images []*pb.Image
-		for _, image := range product.ImageUrl {
-			images = append(images, &pb.Image{
-				Id:  uint32(image.ID),
-				Url: image.URL,
-			})
-		}
-
+		categories := utils.MapCategoryDTOResponseTogRPC(product)
+		images := utils.MapImageDTOResponseTogRPC(product)
 		res.Products = append(res.Products, &pb.ProductResponse{
-			Id:          uint32(product.ID),
+			Id:          product.ID,
 			Name:        product.Name,
 			Description: product.Description,
 			Price:       product.Price,
-			Stock:       int32(product.Stock),
+			Stock:       product.Stock,
 			Rating:      product.Rating,
 			OldPrice:    product.OldPrice,
 			Category:    categories,
@@ -64,35 +52,22 @@ func (s *ProductServer) GetAllProducts(ctx context.Context, req *emptypb.Empty) 
 }
 
 func (s *ProductServer) GetProductByID(ctx context.Context, req *pb.GetProductByIDRequest) (*pb.ProductResponse, error) {
-	productID := uint(req.GetId())
+	productID := req.GetId()
 
 	product, err := s.productService.GetProductByID(ctx, productID)
 	if err != nil {
-		return nil, status.Errorf(codes.NotFound, "product not found: %v", err)
+		return nil, status.Errorf(codes.NotFound, constants.ErrProductServiceGetByID, err)
 	}
 
-	var categories []*pb.CategoryResponse
-	for _, category := range product.Category {
-		categories = append(categories, &pb.CategoryResponse{
-			Id:   uint32(category.ID),
-			Name: category.Name,
-		})
-	}
-
-	var images []*pb.Image
-	for _, image := range product.ImageUrl {
-		images = append(images, &pb.Image{
-			Id:  uint32(image.ID),
-			Url: image.URL,
-		})
-	}
+	categories := utils.MapCategoryDTOResponseTogRPC(product)
+	images := utils.MapImageDTOResponseTogRPC(product)
 
 	return &pb.ProductResponse{
-		Id:          uint32(product.ID),
+		Id:          product.ID,
 		Name:        product.Name,
 		Description: product.Description,
 		Price:       product.Price,
-		Stock:       int32(product.Stock),
+		Stock:       product.Stock,
 		Rating:      product.Rating,
 		OldPrice:    product.OldPrice,
 		Category:    categories,
@@ -101,37 +76,24 @@ func (s *ProductServer) GetProductByID(ctx context.Context, req *pb.GetProductBy
 }
 
 func (s *ProductServer) GetProductByCategoryID(ctx context.Context, req *pb.GetProductByCategoryRequest) (*pb.ProductListResponse, error) {
-	categoryID := uint(req.GetCategoryId())
+	categoryID := req.GetCategoryId()
 
 	products, err := s.productService.GetProductByCategoryID(ctx, categoryID)
 	if err != nil {
-		return nil, status.Errorf(codes.NotFound, "products not found for category: %v", err)
-	}
-
-	var categories []*pb.CategoryResponse
-	for _, category := range products {
-		categories = append(categories, &pb.CategoryResponse{
-			Id:   uint32(category.ID),
-			Name: category.Name,
-		})
+		return nil, status.Errorf(codes.NotFound, constants.ErrProductServiceGetByCategoryID, err)
 	}
 
 	var res pb.ProductListResponse
 	for _, product := range products {
-		var images []*pb.Image
-		for _, image := range product.ImageUrl {
-			images = append(images, &pb.Image{
-				Id:  uint32(image.ID),
-				Url: image.URL,
-			})
-		}
+		categories := utils.MapCategoryDTOResponseTogRPC(product)
+		images := utils.MapImageDTOResponseTogRPC(product)
 
 		res.Products = append(res.Products, &pb.ProductResponse{
-			Id:          uint32(product.ID),
+			Id:          product.ID,
 			Name:        product.Name,
 			Description: product.Description,
 			Price:       product.Price,
-			Stock:       int32(product.Stock),
+			Stock:       product.Stock,
 			Rating:      product.Rating,
 			OldPrice:    product.OldPrice,
 			Category:    categories,
@@ -148,37 +110,24 @@ func (s *ProductServer) CreateProduct(ctx context.Context, req *pb.CreateProduct
 		Description: req.Description,
 		Price:       req.Price,
 		OldPrice:    req.OldPrice,
-		Stock:       int(req.Stock),
+		Stock:       req.Stock,
 		Category:    req.Category,
 	}
 
 	product, err := s.productService.CreateProduct(ctx, dtoReq)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to create product: %v", err)
+		return nil, status.Errorf(codes.Internal, constants.ErrProductServiceCreate, err)
 	}
 
-	var categories []*pb.CategoryResponse
-	for _, category := range product.Category {
-		categories = append(categories, &pb.CategoryResponse{
-			Id:   uint32(category.ID),
-			Name: category.Name,
-		})
-	}
-
-	var images []*pb.Image
-	for _, image := range product.ImageUrl {
-		images = append(images, &pb.Image{
-			Id:  uint32(image.ID),
-			Url: image.URL,
-		})
-	}
+	categories := utils.MapCategoryDTOResponseTogRPC(product)
+	images := utils.MapImageDTOResponseTogRPC(product)
 
 	return &pb.ProductResponse{
-		Id:          uint32(product.ID),
+		Id:          product.ID,
 		Name:        product.Name,
 		Description: product.Description,
 		Price:       product.Price,
-		Stock:       int32(product.Stock),
+		Stock:       product.Stock,
 		Rating:      product.Rating,
 		OldPrice:    product.OldPrice,
 		Category:    categories,
@@ -187,44 +136,31 @@ func (s *ProductServer) CreateProduct(ctx context.Context, req *pb.CreateProduct
 }
 
 func (s *ProductServer) UpdateProduct(ctx context.Context, req *pb.UpdateProductRequest) (*pb.ProductResponse, error) {
-	productID := uint(req.GetId())
+	productID := req.GetId()
 
 	dtoReq := dto.UpdateProductRequestDTO{
 		Name:        req.Name,
 		Description: req.Description,
 		Price:       req.Price,
 		OldPrice:    req.OldPrice,
-		Stock:       int(req.Stock),
+		Stock:       req.Stock,
 		Category:    req.Category,
 	}
 
 	product, err := s.productService.UpdateProduct(ctx, productID, dtoReq)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to update product: %v", err)
+		return nil, status.Errorf(codes.Internal, constants.ErrProductServiceUpdate, err)
 	}
 
-	var categories []*pb.CategoryResponse
-	for _, category := range product.Category {
-		categories = append(categories, &pb.CategoryResponse{
-			Id:   uint32(category.ID),
-			Name: category.Name,
-		})
-	}
-
-	var images []*pb.Image
-	for _, image := range product.ImageUrl {
-		images = append(images, &pb.Image{
-			Id:  uint32(image.ID),
-			Url: image.URL,
-		})
-	}
+	categories := utils.MapCategoryDTOResponseTogRPC(product)
+	images := utils.MapImageDTOResponseTogRPC(product)
 
 	return &pb.ProductResponse{
-		Id:          uint32(product.ID),
+		Id:          product.ID,
 		Name:        product.Name,
 		Description: product.Description,
 		Price:       product.Price,
-		Stock:       int32(product.Stock),
+		Stock:       product.Stock,
 		Rating:      product.Rating,
 		OldPrice:    product.OldPrice,
 		Category:    categories,
@@ -233,11 +169,11 @@ func (s *ProductServer) UpdateProduct(ctx context.Context, req *pb.UpdateProduct
 }
 
 func (s *ProductServer) DeleteProduct(ctx context.Context, req *pb.DeleteProductRequest) (*emptypb.Empty, error) {
-	productID := uint(req.GetId())
+	productID := req.GetId()
 
 	err := s.productService.DeleteProduct(ctx, productID)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to delete product: %v", err)
+		return nil, status.Errorf(codes.Internal, constants.ErrProductServiceDelete, err)
 	}
 
 	return &emptypb.Empty{}, nil

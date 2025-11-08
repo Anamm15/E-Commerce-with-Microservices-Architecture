@@ -11,10 +11,10 @@ import (
 
 type ReviewRepository interface {
 	GetAllReviews(ctx context.Context) ([]dto.ReviewResponseDTO, error)
-	GetReviewByProductId(ctx context.Context, productId uint) ([]dto.ReviewResponseDTO, error)
+	GetReviewByProductId(ctx context.Context, productId uint64) ([]dto.ReviewResponseDTO, error)
 	CreateReview(ctx context.Context, review *models.Review) (dto.ReviewResponseDTO, error)
 	UpdateReview(ctx context.Context, review *models.Review) (dto.ReviewResponseDTO, error)
-	DeleteReview(ctx context.Context, reviewId uint) error
+	DeleteReview(ctx context.Context, reviewId uint64, userID uint64) error
 }
 
 type reviewRepository struct {
@@ -26,23 +26,47 @@ func NewReviewRepository(db *gorm.DB) ReviewRepository {
 }
 
 func (r *reviewRepository) GetAllReviews(ctx context.Context) ([]dto.ReviewResponseDTO, error) {
-	var reviews []dto.ReviewResponseDTO
-	if err := r.db.Find(&reviews).Error; err != nil {
+	var reviews []models.Review
+	if err := r.db.WithContext(ctx).
+		Find(&reviews).Error; err != nil {
 		return nil, err
 	}
-	return reviews, nil
+
+	var reviewsDTOs []dto.ReviewResponseDTO
+	for _, review := range reviews {
+		reviewsDTOs = append(reviewsDTOs, dto.ReviewResponseDTO{
+			ID:      review.ID,
+			Rating:  review.Rating,
+			Comment: review.Comment,
+			Date:    review.Date,
+		})
+	}
+	return reviewsDTOs, nil
 }
 
-func (r *reviewRepository) GetReviewByProductId(ctx context.Context, productId uint) ([]dto.ReviewResponseDTO, error) {
-	var review []dto.ReviewResponseDTO
-	if err := r.db.Where("product_id = ?", productId).Find(&review).Error; err != nil {
+func (r *reviewRepository) GetReviewByProductId(ctx context.Context, productId uint64) ([]dto.ReviewResponseDTO, error) {
+	var reviews []models.Review
+	if err := r.db.WithContext(ctx).
+		Where("product_id = ?", productId).
+		Find(&reviews).Error; err != nil {
 		return nil, err
 	}
-	return review, nil
+
+	var reviewsDTOs []dto.ReviewResponseDTO
+	for _, review := range reviews {
+		reviewsDTOs = append(reviewsDTOs, dto.ReviewResponseDTO{
+			ID:      review.ID,
+			Rating:  review.Rating,
+			Comment: review.Comment,
+			Date:    review.Date,
+		})
+	}
+	return reviewsDTOs, nil
 }
 
 func (r *reviewRepository) CreateReview(ctx context.Context, review *models.Review) (dto.ReviewResponseDTO, error) {
-	if err := r.db.Create(&review).Error; err != nil {
+	if err := r.db.WithContext(ctx).
+		Create(&review).Error; err != nil {
 		return dto.ReviewResponseDTO{}, err
 	}
 	return dto.ReviewResponseDTO{
@@ -54,9 +78,11 @@ func (r *reviewRepository) CreateReview(ctx context.Context, review *models.Revi
 }
 
 func (r *reviewRepository) UpdateReview(ctx context.Context, review *models.Review) (dto.ReviewResponseDTO, error) {
-	if err := r.db.Save(&review).Error; err != nil {
+	if err := r.db.WithContext(ctx).
+		Save(&review).Error; err != nil {
 		return dto.ReviewResponseDTO{}, err
 	}
+
 	return dto.ReviewResponseDTO{
 		ID:      review.ID,
 		Rating:  review.Rating,
@@ -65,8 +91,10 @@ func (r *reviewRepository) UpdateReview(ctx context.Context, review *models.Revi
 	}, nil
 }
 
-func (r *reviewRepository) DeleteReview(ctx context.Context, reviewId uint) error {
-	if err := r.db.Where("id = ?", reviewId).Delete(&models.Review{}).Error; err != nil {
+func (r *reviewRepository) DeleteReview(ctx context.Context, reviewId uint64, userID uint64) error {
+	if err := r.db.WithContext(ctx).
+		Where("id = ? and user_id = ?", reviewId, userID).
+		Delete(&models.Review{}).Error; err != nil {
 		return err
 	}
 	return nil

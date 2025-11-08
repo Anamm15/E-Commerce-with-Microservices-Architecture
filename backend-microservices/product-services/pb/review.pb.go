@@ -7,14 +7,13 @@
 package pb
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -26,7 +25,7 @@ const (
 
 type UserReview struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	FullName      string                 `protobuf:"bytes,2,opt,name=full_name,json=fullName,proto3" json:"full_name,omitempty"`
 	AvatarUrl     string                 `protobuf:"bytes,3,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -63,7 +62,7 @@ func (*UserReview) Descriptor() ([]byte, []int) {
 	return file_proto_review_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *UserReview) GetId() uint32 {
+func (x *UserReview) GetId() uint64 {
 	if x != nil {
 		return x.Id
 	}
@@ -86,8 +85,8 @@ func (x *UserReview) GetAvatarUrl() string {
 
 type CreateReviewRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProductId     uint32                 `protobuf:"varint,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
-	UserId        uint32                 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ProductId     uint64                 `protobuf:"varint,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
+	UserId        uint64                 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Rating        int32                  `protobuf:"varint,3,opt,name=rating,proto3" json:"rating,omitempty"`
 	Comment       string                 `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -124,14 +123,14 @@ func (*CreateReviewRequest) Descriptor() ([]byte, []int) {
 	return file_proto_review_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *CreateReviewRequest) GetProductId() uint32 {
+func (x *CreateReviewRequest) GetProductId() uint64 {
 	if x != nil {
 		return x.ProductId
 	}
 	return 0
 }
 
-func (x *CreateReviewRequest) GetUserId() uint32 {
+func (x *CreateReviewRequest) GetUserId() uint64 {
 	if x != nil {
 		return x.UserId
 	}
@@ -154,9 +153,9 @@ func (x *CreateReviewRequest) GetComment() string {
 
 type UpdateReviewRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ReviewId      uint32                 `protobuf:"varint,1,opt,name=review_id,json=reviewId,proto3" json:"review_id,omitempty"`
-	ProductId     uint32                 `protobuf:"varint,2,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
-	UserId        uint32                 `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ReviewId      uint64                 `protobuf:"varint,1,opt,name=review_id,json=reviewId,proto3" json:"review_id,omitempty"`
+	ProductId     uint64                 `protobuf:"varint,2,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
+	UserId        uint64                 `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Rating        int32                  `protobuf:"varint,4,opt,name=rating,proto3" json:"rating,omitempty"`
 	Comment       string                 `protobuf:"bytes,5,opt,name=comment,proto3" json:"comment,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -193,21 +192,21 @@ func (*UpdateReviewRequest) Descriptor() ([]byte, []int) {
 	return file_proto_review_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *UpdateReviewRequest) GetReviewId() uint32 {
+func (x *UpdateReviewRequest) GetReviewId() uint64 {
 	if x != nil {
 		return x.ReviewId
 	}
 	return 0
 }
 
-func (x *UpdateReviewRequest) GetProductId() uint32 {
+func (x *UpdateReviewRequest) GetProductId() uint64 {
 	if x != nil {
 		return x.ProductId
 	}
 	return 0
 }
 
-func (x *UpdateReviewRequest) GetUserId() uint32 {
+func (x *UpdateReviewRequest) GetUserId() uint64 {
 	if x != nil {
 		return x.UserId
 	}
@@ -230,7 +229,7 @@ func (x *UpdateReviewRequest) GetComment() string {
 
 type GetReviewByProductRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProductId     uint32                 `protobuf:"varint,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
+	ProductId     uint64                 `protobuf:"varint,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -265,7 +264,7 @@ func (*GetReviewByProductRequest) Descriptor() ([]byte, []int) {
 	return file_proto_review_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetReviewByProductRequest) GetProductId() uint32 {
+func (x *GetReviewByProductRequest) GetProductId() uint64 {
 	if x != nil {
 		return x.ProductId
 	}
@@ -274,7 +273,8 @@ func (x *GetReviewByProductRequest) GetProductId() uint32 {
 
 type DeleteReviewRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ReviewId      uint32                 `protobuf:"varint,1,opt,name=review_id,json=reviewId,proto3" json:"review_id,omitempty"`
+	ReviewId      uint64                 `protobuf:"varint,1,opt,name=review_id,json=reviewId,proto3" json:"review_id,omitempty"`
+	UserId        uint64                 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -309,16 +309,23 @@ func (*DeleteReviewRequest) Descriptor() ([]byte, []int) {
 	return file_proto_review_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *DeleteReviewRequest) GetReviewId() uint32 {
+func (x *DeleteReviewRequest) GetReviewId() uint64 {
 	if x != nil {
 		return x.ReviewId
 	}
 	return 0
 }
 
+func (x *DeleteReviewRequest) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
 type ReviewResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Rating        int32                  `protobuf:"varint,2,opt,name=rating,proto3" json:"rating,omitempty"`
 	Comment       string                 `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`
 	Date          *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date,proto3" json:"date,omitempty"`
@@ -357,7 +364,7 @@ func (*ReviewResponse) Descriptor() ([]byte, []int) {
 	return file_proto_review_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ReviewResponse) GetId() uint32 {
+func (x *ReviewResponse) GetId() uint64 {
 	if x != nil {
 		return x.Id
 	}
@@ -443,30 +450,31 @@ const file_proto_review_proto_rawDesc = "" +
 	"\x12proto/review.proto\x12\aproduct\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"X\n" +
 	"\n" +
 	"UserReview\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\rR\x02id\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x1b\n" +
 	"\tfull_name\x18\x02 \x01(\tR\bfullName\x12\x1d\n" +
 	"\n" +
 	"avatar_url\x18\x03 \x01(\tR\tavatarUrl\"\x7f\n" +
 	"\x13CreateReviewRequest\x12\x1d\n" +
 	"\n" +
-	"product_id\x18\x01 \x01(\rR\tproductId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\rR\x06userId\x12\x16\n" +
+	"product_id\x18\x01 \x01(\x04R\tproductId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x04R\x06userId\x12\x16\n" +
 	"\x06rating\x18\x03 \x01(\x05R\x06rating\x12\x18\n" +
 	"\acomment\x18\x04 \x01(\tR\acomment\"\x9c\x01\n" +
 	"\x13UpdateReviewRequest\x12\x1b\n" +
-	"\treview_id\x18\x01 \x01(\rR\breviewId\x12\x1d\n" +
+	"\treview_id\x18\x01 \x01(\x04R\breviewId\x12\x1d\n" +
 	"\n" +
-	"product_id\x18\x02 \x01(\rR\tproductId\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\rR\x06userId\x12\x16\n" +
+	"product_id\x18\x02 \x01(\x04R\tproductId\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\x04R\x06userId\x12\x16\n" +
 	"\x06rating\x18\x04 \x01(\x05R\x06rating\x12\x18\n" +
 	"\acomment\x18\x05 \x01(\tR\acomment\":\n" +
 	"\x19GetReviewByProductRequest\x12\x1d\n" +
 	"\n" +
-	"product_id\x18\x01 \x01(\rR\tproductId\"2\n" +
+	"product_id\x18\x01 \x01(\x04R\tproductId\"K\n" +
 	"\x13DeleteReviewRequest\x12\x1b\n" +
-	"\treview_id\x18\x01 \x01(\rR\breviewId\"\xab\x01\n" +
+	"\treview_id\x18\x01 \x01(\x04R\breviewId\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x04R\x06userId\"\xab\x01\n" +
 	"\x0eReviewResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\rR\x02id\x12\x16\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x16\n" +
 	"\x06rating\x18\x02 \x01(\x05R\x06rating\x12\x18\n" +
 	"\acomment\x18\x03 \x01(\tR\acomment\x12.\n" +
 	"\x04date\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12'\n" +
@@ -492,20 +500,18 @@ func file_proto_review_proto_rawDescGZIP() []byte {
 	return file_proto_review_proto_rawDescData
 }
 
-var (
-	file_proto_review_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-	file_proto_review_proto_goTypes  = []any{
-		(*UserReview)(nil),                // 0: product.UserReview
-		(*CreateReviewRequest)(nil),       // 1: product.CreateReviewRequest
-		(*UpdateReviewRequest)(nil),       // 2: product.UpdateReviewRequest
-		(*GetReviewByProductRequest)(nil), // 3: product.GetReviewByProductRequest
-		(*DeleteReviewRequest)(nil),       // 4: product.DeleteReviewRequest
-		(*ReviewResponse)(nil),            // 5: product.ReviewResponse
-		(*ReviewListResponse)(nil),        // 6: product.ReviewListResponse
-		(*timestamppb.Timestamp)(nil),     // 7: google.protobuf.Timestamp
-		(*emptypb.Empty)(nil),             // 8: google.protobuf.Empty
-	}
-)
+var file_proto_review_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_proto_review_proto_goTypes = []any{
+	(*UserReview)(nil),                // 0: product.UserReview
+	(*CreateReviewRequest)(nil),       // 1: product.CreateReviewRequest
+	(*UpdateReviewRequest)(nil),       // 2: product.UpdateReviewRequest
+	(*GetReviewByProductRequest)(nil), // 3: product.GetReviewByProductRequest
+	(*DeleteReviewRequest)(nil),       // 4: product.DeleteReviewRequest
+	(*ReviewResponse)(nil),            // 5: product.ReviewResponse
+	(*ReviewListResponse)(nil),        // 6: product.ReviewListResponse
+	(*timestamppb.Timestamp)(nil),     // 7: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),             // 8: google.protobuf.Empty
+}
 var file_proto_review_proto_depIdxs = []int32{
 	7, // 0: product.ReviewResponse.date:type_name -> google.protobuf.Timestamp
 	0, // 1: product.ReviewResponse.user:type_name -> product.UserReview

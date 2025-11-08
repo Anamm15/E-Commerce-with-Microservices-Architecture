@@ -2,8 +2,8 @@ package product
 
 import (
 	"net/http"
-	"strconv"
 
+	constants "api-gateway/internal/constants"
 	dto "api-gateway/internal/dto/product"
 	productpb "api-gateway/internal/pb/product"
 	"api-gateway/internal/utils"
@@ -31,19 +31,19 @@ func NewCategoryController(categoryClient productpb.CategoryServiceClient) Categ
 func (c *categoryController) GetAllCategories(ctx *gin.Context) {
 	categories, err := c.categoryClient.GetAllCategories(ctx, &emptypb.Empty{})
 	if err != nil {
-		res := utils.BuildResponseFailed("Failed to get categories", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrGetCategories, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("Categories retrieved successfully", categories)
+	res := utils.BuildResponseSuccess(constants.SuccessGetCategories, categories)
 	ctx.JSON(http.StatusOK, res)
 }
 
 func (c *categoryController) CreateCategory(ctx *gin.Context) {
 	var req dto.CreateCategoryRequestDTO
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		res := utils.BuildResponseFailed("Invalid request", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrInvalidRequest, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
@@ -54,65 +54,65 @@ func (c *categoryController) CreateCategory(ctx *gin.Context) {
 
 	category, err := c.categoryClient.CreateCategory(ctx, gRPCReq)
 	if err != nil {
-		res := utils.BuildResponseFailed("Failed to create category", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrCreateCategory, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("Category created successfully", category)
+	res := utils.BuildResponseSuccess(constants.SuccessCreateCategory, category)
 	ctx.JSON(http.StatusCreated, res)
 }
 
 func (c *categoryController) UpdateCategory(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param(constants.ParamID)
 	if id == "" {
-		res := utils.BuildResponseFailed("Invalid request", "category id is required", nil)
+		res := utils.BuildResponseFailed(constants.ErrInvalidRequest, constants.ErrCategoryIDRequired, nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
-	categoryID, _ := strconv.ParseUint(id, 10, 64)
 
 	var req dto.UpdateCategoryRequestDTO
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		res := utils.BuildResponseFailed("Invalid request", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrInvalidRequest, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
+	categoryID := utils.StringToUint(id)
 	gRPCReq := &productpb.UpdateCategoryRequest{
-		Id:   uint32(categoryID),
+		Id:   categoryID,
 		Name: req.Name,
 	}
 
 	category, err := c.categoryClient.UpdateCategory(ctx, gRPCReq)
 	if err != nil {
-		res := utils.BuildResponseFailed("Failed to update category", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrUpdateCategory, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("Category updated successfully", category)
+	res := utils.BuildResponseSuccess(constants.SuccessUpdateCategory, category)
 	ctx.JSON(http.StatusOK, res)
 }
 
 func (c *categoryController) DeleteCategory(ctx *gin.Context) {
-	id := ctx.Param("id")
+	id := ctx.Param(constants.ParamID)
 	if id == "" {
-		res := utils.BuildResponseFailed("Invalid request", "category id is required", nil)
+		res := utils.BuildResponseFailed(constants.ErrInvalidRequest, constants.ErrCategoryIDRequired, nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
-	categoryID, _ := strconv.ParseUint(id, 10, 32)
 
-	gRPCReq := &productpb.DeleteCategoryRequest{Id: uint32(categoryID)}
+	categoryID := utils.StringToUint(id)
+	gRPCReq := &productpb.DeleteCategoryRequest{Id: categoryID}
 
 	_, err := c.categoryClient.DeleteCategory(ctx, gRPCReq)
 	if err != nil {
-		res := utils.BuildResponseFailed("Failed to delete category", err.Error(), nil)
+		res := utils.BuildResponseFailed(constants.ErrDeleteCategory, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := utils.BuildResponseSuccess("Category deleted successfully", nil)
+	res := utils.BuildResponseSuccess(constants.SuccessDeleteCategory, nil)
 	ctx.JSON(http.StatusOK, res)
 }

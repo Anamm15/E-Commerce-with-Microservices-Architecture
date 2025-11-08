@@ -11,7 +11,7 @@ import "google/protobuf/empty.proto";
 // -------------------------------------
 
 message Category {
-  uint32 id = 1;
+  uint64 id = 1;
   string name = 2;
 }
 
@@ -24,12 +24,12 @@ message CreateCategoryRequest {
 }
 
 message UpdateCategoryRequest {
-  uint32 id = 1;
+  uint64 id = 1;
   string name = 2;
 }
 
 message DeleteCategoryRequest {
-  uint32 id = 1;
+  uint64 id = 1;
 }
 
 // -------------------------------------

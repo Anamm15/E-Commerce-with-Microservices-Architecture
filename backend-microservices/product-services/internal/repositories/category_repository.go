@@ -12,10 +12,10 @@ import (
 
 type CategoryRepository interface {
 	GetAllCategories(ctx context.Context) ([]dto.CategoryResponseDTO, error)
-	AddProductCategory(ctx context.Context, productID uint, categoryIDs []uint32) ([]dto.CategoryResponseDTO, error)
+	AddProductCategory(ctx context.Context, productID uint64, categoryIDs []uint64) ([]dto.CategoryResponseDTO, error)
 	CreateCategory(ctx context.Context, category *models.Category) (dto.CategoryResponseDTO, error)
 	UpdateCategory(ctx context.Context, category *models.Category) (dto.CategoryResponseDTO, error)
-	DeleteCategory(ctx context.Context, categoryId uint) error
+	DeleteCategory(ctx context.Context, categoryId uint64) error
 }
 
 type categoryRepository struct {
@@ -39,7 +39,7 @@ func (r *categoryRepository) GetAllCategories(ctx context.Context) ([]dto.Catego
 	return categories, nil
 }
 
-func (r *categoryRepository) AddProductCategory(ctx context.Context, productID uint, categoryIDs []uint32) ([]dto.CategoryResponseDTO, error) {
+func (r *categoryRepository) AddProductCategory(ctx context.Context, productID uint64, categoryIDs []uint64) ([]dto.CategoryResponseDTO, error) {
 	var categories []models.Category
 
 	if err := r.db.WithContext(ctx).
@@ -49,7 +49,7 @@ func (r *categoryRepository) AddProductCategory(ctx context.Context, productID u
 	}
 
 	if len(categories) == 0 {
-		return nil, errors.New("kategori tidak ditemukan")
+		return nil, errors.New("category not found")
 	}
 
 	var product models.Product
@@ -70,21 +70,31 @@ func (r *categoryRepository) AddProductCategory(ctx context.Context, productID u
 }
 
 func (r *categoryRepository) CreateCategory(ctx context.Context, category *models.Category) (dto.CategoryResponseDTO, error) {
-	if err := r.db.Create(&category).Error; err != nil {
+	if err := r.db.WithContext(ctx).
+		Create(&category).Error; err != nil {
 		return dto.CategoryResponseDTO{}, err
 	}
-	return dto.CategoryResponseDTO{ID: category.ID, Name: category.Name}, nil
+	return dto.CategoryResponseDTO{
+		ID:   category.ID,
+		Name: category.Name,
+	}, nil
 }
 
 func (r *categoryRepository) UpdateCategory(ctx context.Context, category *models.Category) (dto.CategoryResponseDTO, error) {
-	if err := r.db.Save(&category).Error; err != nil {
+	if err := r.db.WithContext(ctx).
+		Save(&category).Error; err != nil {
 		return dto.CategoryResponseDTO{}, err
 	}
-	return dto.CategoryResponseDTO{ID: category.ID, Name: category.Name}, nil
+	return dto.CategoryResponseDTO{
+		ID:   category.ID,
+		Name: category.Name,
+	}, nil
 }
 
-func (r *categoryRepository) DeleteCategory(ctx context.Context, categoryId uint) error {
-	if err := r.db.Where("id = ?", categoryId).Delete(&models.Category{}).Error; err != nil {
+func (r *categoryRepository) DeleteCategory(ctx context.Context, categoryId uint64) error {
+	if err := r.db.WithContext(ctx).
+		Where("id = ?", categoryId).
+		Delete(&models.Category{}).Error; err != nil {
 		return err
 	}
 	return nil
