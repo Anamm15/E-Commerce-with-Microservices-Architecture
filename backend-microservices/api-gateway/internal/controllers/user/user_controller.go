@@ -15,8 +15,32 @@ type UserController struct {
 	UserClient userpb.UserServiceClient
 }
 
-func NewUserController(client userpb.UserServiceClient) *UserController {
-	return &UserController{UserClient: client}
+func NewUserController(UserClient userpb.UserServiceClient) *UserController {
+	return &UserController{UserClient: UserClient}
+}
+
+func (uc *UserController) GetAllUsers(c *gin.Context) {
+	resp, err := uc.UserClient.GetAllUsers(context.Background(), &userpb.Empty{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed("failed to get users", err.Error(), nil))
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.BuildResponseSuccess("users fetched", resp.Users))
+}
+
+func (uc *UserController) GetUserByUsername(c *gin.Context) {
+	username := c.Query("username")
+
+	grpcReq := &userpb.GetUserByUsernameRequest{Username: username}
+
+	resp, err := uc.UserClient.GetUserByUsername(context.Background(), grpcReq)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed("failed to get user", err.Error(), nil))
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.BuildResponseSuccess("user fetched", resp))
 }
 
 func (uc *UserController) CreateUser(c *gin.Context) {
@@ -40,30 +64,6 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, utils.BuildResponseSuccess("user created", resp))
-}
-
-func (uc *UserController) GetUserByUsername(c *gin.Context) {
-	username := c.Query("username")
-
-	grpcReq := &userpb.GetUserByUsernameRequest{Username: username}
-
-	resp, err := uc.UserClient.GetUserByUsername(context.Background(), grpcReq)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed("failed to get user", err.Error(), nil))
-		return
-	}
-
-	c.JSON(http.StatusOK, utils.BuildResponseSuccess("user fetched", resp))
-}
-
-func (uc *UserController) GetAllUsers(c *gin.Context) {
-	resp, err := uc.UserClient.GetAllUsers(context.Background(), &userpb.Empty{})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed("failed to get users", err.Error(), nil))
-		return
-	}
-
-	c.JSON(http.StatusOK, utils.BuildResponseSuccess("users fetched", resp.Users))
 }
 
 func (uc *UserController) UpdateUser(c *gin.Context) {
