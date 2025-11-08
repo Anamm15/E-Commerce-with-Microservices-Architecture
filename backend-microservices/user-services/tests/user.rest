@@ -1,5 +1,0 @@
-###
-GET http://localhost:10000/api/v1/users/
-
-###
-GET http://localhost:10000/api/v1/users?username=user1

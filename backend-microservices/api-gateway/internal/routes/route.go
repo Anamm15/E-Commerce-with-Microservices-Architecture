@@ -7,16 +7,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// func SetupRouter(authClient userpb.AuthServiceClient, userClient userpb.UserServiceClient) *gin.Engine {
-func SetupRouter(userClient userpb.UserServiceClient) *gin.Engine {
+func SetupRouter(userClient userpb.UserServiceClient, addressClient userpb.AddressServiceClient) *gin.Engine {
 	r := gin.Default()
 	api := r.Group("/api/v1")
 
-	// 🔹 Inisialisasi controller dari subfolder
+	// 🔹 Initializating controller from each service
 	userCtrl := userController.NewUserController(userClient)
+	addressCtrl := userController.NewAddressController(addressClient)
 
 	// 🔹 Registrasi route
-	UserRoute(api, userCtrl)
+	UserRoute(api, userCtrl, addressCtrl)
 
 	return r
 }

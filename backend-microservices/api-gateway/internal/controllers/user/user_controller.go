@@ -39,7 +39,7 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, utils.BuildResponseSuccess("user created", resp))
+	c.JSON(http.StatusCreated, utils.BuildResponseSuccess("user created", resp))
 }
 
 func (uc *UserController) GetUserByUsername(c *gin.Context) {
