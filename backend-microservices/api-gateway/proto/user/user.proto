@@ -4,12 +4,7 @@ package user;
 
 option go_package = "/internal/pb/user;userpb";
 
-// Import untuk tipe waktu (google.protobuf.Timestamp)
 import "google/protobuf/timestamp.proto";
-
-// -------------------
-//  Message Definitions
-// -------------------
 
 message User {
   uint64 id = 1;
@@ -50,7 +45,7 @@ message UserUpdateRequest {
 }
 
 message UserDeleteRequest {
-  uint64 Id = 1;
+  uint64 id = 1;
 }
 
 message Empty {}
@@ -59,10 +54,6 @@ message UserList {
   repeated UserResponse users = 1;
 }
 
-// -------------------
-//  Service Definimtion
-// -------------------
-
 service UserService {
   rpc CreateUser (UserCreateRequest) returns (UserResponse);
   rpc GetUserByUsername (GetUserByUsernameRequest) returns (UserResponse);
@@ -70,10 +61,6 @@ service UserService {
   rpc UpdateUser (UserUpdateRequest) returns (UserResponse);
   rpc DeleteUser (UserDeleteRequest) returns (Empty);
 }
-
-// -------------------
-//  Supporting Messages
-// -------------------
 
 message GetUserByUsernameRequest {
   string username = 1;

@@ -8,7 +8,8 @@ import (
 )
 
 type UserClient struct {
-	Client userpb.UserServiceClient
+	UserClient    userpb.UserServiceClient
+	AddressClient userpb.AddressServiceClient
 }
 
 func NewUserClient(target string) (*UserClient, error) {
@@ -19,11 +20,13 @@ func NewUserClient(target string) (*UserClient, error) {
 	}
 
 	// Membuat stub client dari hasil generate proto
-	client := userpb.NewUserServiceClient(conn)
+	userClient := userpb.NewUserServiceClient(conn)
+	addressClient := userpb.NewAddressServiceClient(conn)
 
 	log.Printf("✅ Berhasil konek ke UserService di %s", target)
 
 	return &UserClient{
-		Client: client,
+		UserClient:    userClient,
+		AddressClient: addressClient,
 	}, nil
 }

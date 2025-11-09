@@ -376,7 +376,7 @@ func (x *UserUpdateRequest) GetAvatarUrl() string {
 
 type UserDeleteRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=Id,proto3" json:"Id,omitempty"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -583,7 +583,7 @@ const file_proto_user_user_proto_rawDesc = "" +
 	"\n" +
 	"avatar_url\x18\x06 \x01(\tR\tavatarUrl\"#\n" +
 	"\x11UserDeleteRequest\x12\x0e\n" +
-	"\x02Id\x18\x01 \x01(\x04R\x02Id\"\a\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\"\a\n" +
 	"\x05Empty\"4\n" +
 	"\bUserList\x12(\n" +
 	"\x05users\x18\x01 \x03(\v2\x12.user.UserResponseR\x05users\"6\n" +

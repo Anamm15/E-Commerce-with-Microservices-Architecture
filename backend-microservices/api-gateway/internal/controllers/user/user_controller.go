@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"api-gateway/internal/constants"
 	dto "api-gateway/internal/dto/user"
 	userpb "api-gateway/internal/pb/user"
 	"api-gateway/internal/utils"
@@ -22,7 +23,7 @@ func NewUserController(client userpb.UserServiceClient) *UserController {
 func (uc *UserController) CreateUser(c *gin.Context) {
 	var req dto.UserCreateDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed("invalid request", err.Error(), nil))
+		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed(constants.ErrInvalidRequest, err.Error(), nil))
 		return
 	}
 
@@ -35,53 +36,53 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 
 	resp, err := uc.UserClient.CreateUser(context.Background(), grpcReq)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed("gRPC error", err.Error(), nil))
+		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed(constants.ErrCreateUser, err.Error(), nil))
 		return
 	}
 
-	c.JSON(http.StatusOK, utils.BuildResponseSuccess("user created", resp))
+	c.JSON(http.StatusCreated, utils.BuildResponseSuccess(constants.SuccessUserCreated, resp))
 }
 
 func (uc *UserController) GetUserByUsername(c *gin.Context) {
-	username := c.Query("username")
+	username := c.Query(constants.QueryUsername)
 
 	grpcReq := &userpb.GetUserByUsernameRequest{Username: username}
 
 	resp, err := uc.UserClient.GetUserByUsername(context.Background(), grpcReq)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed("failed to get user", err.Error(), nil))
+		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed(constants.ErrGetUser, err.Error(), nil))
 		return
 	}
 
-	c.JSON(http.StatusOK, utils.BuildResponseSuccess("user fetched", resp))
+	c.JSON(http.StatusOK, utils.BuildResponseSuccess(constants.SuccessUserFetched, resp))
 }
 
 func (uc *UserController) GetAllUsers(c *gin.Context) {
 	resp, err := uc.UserClient.GetAllUsers(context.Background(), &userpb.Empty{})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed("failed to get users", err.Error(), nil))
+		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed(constants.ErrGetUsers, err.Error(), nil))
 		return
 	}
 
-	c.JSON(http.StatusOK, utils.BuildResponseSuccess("users fetched", resp.Users))
+	c.JSON(http.StatusOK, utils.BuildResponseSuccess(constants.SuccessUsersFetched, resp.Users))
 }
 
 func (uc *UserController) UpdateUser(c *gin.Context) {
-	idParam := c.Param("id")
+	idParam := c.Param(constants.ParamID)
 	if idParam == "" {
-		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed("invalid request", "id is required", nil))
+		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed(constants.ErrInvalidRequest, constants.ErrIDRequired, nil))
 		return
 	}
 
 	reqID := utils.StringToUint(idParam)
 	if reqID == 0 {
-		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed("invalid request", "invalid id", nil))
+		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed(constants.ErrInvalidRequest, constants.ErrInvalidID, nil))
 		return
 	}
 
 	var req dto.UserUpdateDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed("invalid request", err.Error(), nil))
+		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed(constants.ErrInvalidRequest, err.Error(), nil))
 		return
 	}
 
@@ -96,23 +97,23 @@ func (uc *UserController) UpdateUser(c *gin.Context) {
 
 	resp, err := uc.UserClient.UpdateUser(context.Background(), grpcReq)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed("failed to update user", err.Error(), nil))
+		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed(constants.ErrUpdateUser, err.Error(), nil))
 		return
 	}
 
-	c.JSON(http.StatusOK, utils.BuildResponseSuccess("user updated", resp))
+	c.JSON(http.StatusOK, utils.BuildResponseSuccess(constants.SuccessUserUpdated, resp))
 }
 
 func (uc *UserController) DeleteUser(c *gin.Context) {
-	idParam := c.Param("id")
+	idParam := c.Param(constants.ParamID)
 	if idParam == "" {
-		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed("invalid request", "id is required", nil))
+		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed(constants.ErrInvalidRequest, constants.ErrIDRequired, nil))
 		return
 	}
 
 	reqID := utils.StringToUint(idParam)
 	if reqID == 0 {
-		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed("invalid request", "invalid id", nil))
+		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed(constants.ErrInvalidRequest, constants.ErrInvalidID, nil))
 		return
 	}
 
@@ -122,9 +123,9 @@ func (uc *UserController) DeleteUser(c *gin.Context) {
 
 	_, err := uc.UserClient.DeleteUser(context.Background(), grpcReq)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed("failed to delete user", err.Error(), nil))
+		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed(constants.ErrDeleteUser, err.Error(), nil))
 		return
 	}
 
-	c.JSON(http.StatusOK, utils.BuildResponseSuccess("user deleted", nil))
+	c.JSON(http.StatusOK, utils.BuildResponseSuccess(constants.SuccessUserDeleted, nil))
 }
