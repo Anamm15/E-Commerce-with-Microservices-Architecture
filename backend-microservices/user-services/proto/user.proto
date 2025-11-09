@@ -10,18 +10,6 @@ import "google/protobuf/timestamp.proto";
 //  Message Definitions
 // -------------------
 
-message User {
-  uint64 id = 1;
-  string full_name = 2;
-  string username = 3;
-  string email = 4;
-  string password = 5;
-  string avatar_url = 6;
-  string role = 7;
-  google.protobuf.Timestamp created_at = 8;
-  google.protobuf.Timestamp updated_at = 9;
-}
-
 message UserResponse {
   uint64 id = 1;
   string full_name = 2;

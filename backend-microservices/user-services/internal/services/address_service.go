@@ -9,10 +9,10 @@ import (
 )
 
 type AddressService interface {
-	GetUserAddress(ctx context.Context, userID uint) ([]dto.AddressResponseDTO, error)
-	CreateUserAddress(ctx context.Context, userId uint, address dto.CreateAddressRequestDTO) (dto.AddressResponseDTO, error)
-	UpdateUserAddress(ctx context.Context, userId uint, addressId uint, address dto.UpdateAddressRequestDTO) (dto.AddressResponseDTO, error)
-	DeleteUserAddress(ctx context.Context, addressId uint, userId uint) error
+	GetUserAddress(ctx context.Context, userID uint64) ([]dto.AddressResponseDTO, error)
+	CreateUserAddress(ctx context.Context, userId uint64, address dto.CreateAddressRequestDTO) (dto.AddressResponseDTO, error)
+	UpdateUserAddress(ctx context.Context, userId uint64, addressId uint64, address dto.UpdateAddressRequestDTO) (dto.AddressResponseDTO, error)
+	DeleteUserAddress(ctx context.Context, addressId uint64, userId uint64) error
 }
 
 type addressService struct {
@@ -25,11 +25,11 @@ func NewAddressService(addressRepository repositories.AddressRepository) Address
 	}
 }
 
-func (s *addressService) GetUserAddress(ctx context.Context, userID uint) ([]dto.AddressResponseDTO, error) {
+func (s *addressService) GetUserAddress(ctx context.Context, userID uint64) ([]dto.AddressResponseDTO, error) {
 	return s.addressRepository.GetUserAddress(ctx, userID)
 }
 
-func (s *addressService) CreateUserAddress(ctx context.Context, userId uint, address dto.CreateAddressRequestDTO) (dto.AddressResponseDTO, error) {
+func (s *addressService) CreateUserAddress(ctx context.Context, userId uint64, address dto.CreateAddressRequestDTO) (dto.AddressResponseDTO, error) {
 	addressInput := models.UserAddress{
 		UserID:        userId,
 		Label:         address.Label,
@@ -48,8 +48,9 @@ func (s *addressService) CreateUserAddress(ctx context.Context, userId uint, add
 	return createdAddress, nil
 }
 
-func (s *addressService) UpdateUserAddress(ctx context.Context, userId uint, addressId uint, address dto.UpdateAddressRequestDTO) (dto.AddressResponseDTO, error) {
+func (s *addressService) UpdateUserAddress(ctx context.Context, userId uint64, addressId uint64, address dto.UpdateAddressRequestDTO) (dto.AddressResponseDTO, error) {
 	addressInput := models.UserAddress{
+		ID:            addressId,
 		UserID:        userId,
 		Label:         address.Label,
 		RecipientName: address.RecipientName,
@@ -59,7 +60,7 @@ func (s *addressService) UpdateUserAddress(ctx context.Context, userId uint, add
 		PostalCode:    address.PostalCode,
 	}
 
-	updatedAddress, err := s.addressRepository.UpdateUserAddress(ctx, addressId, addressInput)
+	updatedAddress, err := s.addressRepository.UpdateUserAddress(ctx, addressInput)
 	if err != nil {
 		return dto.AddressResponseDTO{}, err
 	}
@@ -67,6 +68,6 @@ func (s *addressService) UpdateUserAddress(ctx context.Context, userId uint, add
 	return updatedAddress, nil
 }
 
-func (s *addressService) DeleteUserAddress(ctx context.Context, addressId uint, userId uint) error {
+func (s *addressService) DeleteUserAddress(ctx context.Context, addressId uint64, userId uint64) error {
 	return s.addressRepository.DeleteUserAddress(ctx, addressId, userId)
 }

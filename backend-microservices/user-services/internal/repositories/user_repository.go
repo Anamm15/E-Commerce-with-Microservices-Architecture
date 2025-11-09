@@ -68,7 +68,8 @@ func (r *userRepository) FindUserByUsername(ctx context.Context, username string
 }
 
 func (r *userRepository) CreateUser(ctx context.Context, user models.User) (dto.UserResponseDTO, error) {
-	if err := r.db.WithContext(ctx).Create(&user).Error; err != nil {
+	if err := r.db.WithContext(ctx).
+		Create(&user).Error; err != nil {
 		return dto.UserResponseDTO{}, err
 	}
 
@@ -83,7 +84,8 @@ func (r *userRepository) CreateUser(ctx context.Context, user models.User) (dto.
 }
 
 func (r *userRepository) UpdateUser(ctx context.Context, user models.User) (dto.UserResponseDTO, error) {
-	if err := r.db.WithContext(ctx).Save(&user).Error; err != nil {
+	if err := r.db.WithContext(ctx).
+		Save(&user).Error; err != nil {
 		return dto.UserResponseDTO{}, err
 	}
 	return dto.UserResponseDTO{
@@ -97,7 +99,8 @@ func (r *userRepository) UpdateUser(ctx context.Context, user models.User) (dto.
 }
 
 func (r *userRepository) DeleteUser(ctx context.Context, userId uint64) error {
-	if err := r.db.WithContext(ctx).Delete(&models.User{}, userId).Error; err != nil {
+	if err := r.db.WithContext(ctx).
+		Delete(&models.User{}, userId).Error; err != nil {
 		return err
 	}
 	return nil

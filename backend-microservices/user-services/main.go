@@ -40,14 +40,20 @@ func main() {
 
 	// 🔹 Initializing repository, service, and controller
 	userRepository := repositories.NewUserRepository(db)
+	addresRepository := repositories.NewAddressRepository(db)
+
 	userService := services.NewUserService(userRepository)
+	addressService := services.NewAddressService(addresRepository)
+
 	userController := controllers.NewUserController(userService)
+	addressController := controllers.NewAddressController(addressService)
 
 	// 🔹 Setup gRPC server
 	grpcServer := grpc.NewServer()
 
 	// 🔹 Register service to gRPC
 	pb.RegisterUserServiceServer(grpcServer, userController)
+	pb.RegisterAddressServiceServer(grpcServer, addressController)
 
 	// 🔹 Running gRPC listener
 	port := os.Getenv("USER_SERVICE_PORT")

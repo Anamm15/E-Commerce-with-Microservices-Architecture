@@ -1,8 +1,8 @@
 package dto
 
 type AddressResponseDTO struct {
-	ID            uint   `json:"id"`
-	UserID        uint   `json:"user_id"`
+	ID            uint64 `json:"id"`
+	UserID        uint64 `json:"user_id"`
 	Label         string `json:"label"`
 	RecipientName string `json:"recipient_name"`
 	Phone         string `json:"phone"`
@@ -13,7 +13,7 @@ type AddressResponseDTO struct {
 }
 
 type CreateAddressRequestDTO struct {
-	UserID        uint   `json:"user_id"`
+	UserID        uint64 `json:"user_id"`
 	Label         string `json:"label" binding:"required"`
 	RecipientName string `json:"recipient_name" binding:"required"`
 	Phone         string `json:"phone" binding:"required"`
@@ -23,7 +23,7 @@ type CreateAddressRequestDTO struct {
 }
 
 type UpdateAddressRequestDTO struct {
-	ID            uint   `json:"id"`
+	ID            uint64 `json:"id"`
 	Label         string `json:"label"`
 	RecipientName string `json:"recipient_name"`
 	Phone         string `json:"phone"`

@@ -5,7 +5,7 @@ import (
 )
 
 type UserResponseDTO struct {
-	ID          uint      `json:"id"`
+	ID          uint64    `json:"id"`
 	FullName    string    `json:"full_name"`
 	Username    string    `json:"username"`
 	Email       string    `json:"email"`

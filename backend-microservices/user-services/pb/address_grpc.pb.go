@@ -8,6 +8,7 @@ package pb
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -104,12 +105,15 @@ type UnimplementedAddressServiceServer struct{}
 func (UnimplementedAddressServiceServer) GetUserAddress(context.Context, *GetAddressRequest) (*AddressListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserAddress not implemented")
 }
+
 func (UnimplementedAddressServiceServer) CreateUserAddress(context.Context, *CreateAddressRequest) (*AddressResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUserAddress not implemented")
 }
+
 func (UnimplementedAddressServiceServer) UpdateUserAddress(context.Context, *UpdateAddressRequest) (*AddressResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserAddress not implemented")
 }
+
 func (UnimplementedAddressServiceServer) DeleteUserAddress(context.Context, *AddressIDRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUserAddress not implemented")
 }

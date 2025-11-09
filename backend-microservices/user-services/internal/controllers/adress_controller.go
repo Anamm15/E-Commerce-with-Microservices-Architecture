@@ -2,16 +2,14 @@ package controllers
 
 import (
 	"context"
-	"net/http"
-	"strconv"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"user-services/internal/constants"
 	"user-services/internal/dto"
 	"user-services/internal/services"
-	"user-services/internal/utils"
 	pb "user-services/pb"
-
-	"github.com/gin-gonic/gin"
 )
 
 type AddressController struct {
@@ -25,108 +23,89 @@ func NewAddressController(addressService services.AddressService) *AddressContro
 	}
 }
 
-func (c *AddressController) GetUserAddress(ctx *gin.Context) {
-	userID := ctx.MustGet("user_id").(uint64)
-
-	req := &pb.GetAddressRequest{
-		UserId: userID,
-	}
-
-	res, err := c.addressService.GetUserAddress(context.Background(), uint(req.UserId))
+func (c *AddressController) GetUserAddress(ctx context.Context, req *pb.GetAddressRequest) (*pb.AddressListResponse, error) {
+	res, err := c.addressService.GetUserAddress(context.Background(), req.UserId)
 	if err != nil {
-		resp := utils.BuildResponseFailed(constants.ADDRESS_NOT_FOUND, err.Error(), ctx)
-		ctx.JSON(http.StatusBadRequest, resp)
-		return
+		return nil, status.Errorf(codes.NotFound, constants.ErrAddressServiceGet, err)
 	}
 
-	resp := utils.BuildResponseSuccess(constants.ADDRESS_RETRIEVED_SUCCESSFULLY, res)
-	ctx.JSON(http.StatusOK, resp)
+	var pbRes *pb.AddressListResponse
+	for _, address := range res {
+		pbRes.Addresses = append(pbRes.Addresses, &pb.AddressResponse{
+			Id:            address.ID,
+			Label:         address.Label,
+			Address:       address.Address,
+			City:          address.City,
+			IsDefault:     address.IsDefault,
+			PostalCode:    address.PostalCode,
+			Phone:         address.Phone,
+			RecipientName: address.RecipientName,
+		})
+	}
+
+	return pbRes, nil
 }
 
-func (c *AddressController) CreateUserAddress(ctx *gin.Context) {
-	userID := ctx.MustGet("user_id").(uint64)
-
-	var reqBody pb.CreateAddressRequest
-	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
-		resp := utils.BuildResponseFailed(constants.INVALID_REQUEST, err.Error(), ctx)
-		ctx.JSON(http.StatusBadRequest, resp)
-		return
+func (c *AddressController) CreateUserAddress(ctx context.Context, req *pb.CreateAddressRequest) (*pb.AddressResponse, error) {
+	reqBody := dto.CreateAddressRequestDTO{
+		Label:         req.Label,
+		Address:       req.Address,
+		City:          req.City,
+		PostalCode:    req.PostalCode,
+		Phone:         req.Phone,
+		RecipientName: req.RecipientName,
 	}
 
-	req := dto.CreateAddressRequestDTO{
-		Label:         reqBody.Label,
-		Address:       reqBody.Address,
-		City:          reqBody.City,
-		PostalCode:    reqBody.PostalCode,
-		Phone:         reqBody.Phone,
-		RecipientName: reqBody.RecipientName,
-	}
-
-	res, err := c.addressService.CreateUserAddress(context.Background(), uint(userID), req)
+	createdAddress, err := c.addressService.CreateUserAddress(context.Background(), req.GetUserId(), reqBody)
 	if err != nil {
-		resp := utils.BuildResponseFailed(constants.ADDRESS_CREATION_FAILED, err.Error(), ctx)
-		ctx.JSON(http.StatusInternalServerError, resp)
-		return
+		return nil, status.Errorf(codes.Internal, constants.ErrAddressServiceCreate, err)
 	}
 
-	resp := utils.BuildResponseSuccess(constants.ADDRESS_CREATED_SUCCESSFULLY, res)
-	ctx.JSON(http.StatusCreated, resp)
+	return &pb.AddressResponse{
+		Id:            createdAddress.ID,
+		Label:         createdAddress.Label,
+		Address:       createdAddress.Address,
+		City:          createdAddress.City,
+		IsDefault:     createdAddress.IsDefault,
+		PostalCode:    createdAddress.PostalCode,
+		Phone:         createdAddress.Phone,
+		RecipientName: createdAddress.RecipientName,
+	}, nil
 }
 
-func (c *AddressController) UpdateUserAddress(ctx *gin.Context) {
-	userID := ctx.MustGet("user_id").(uint)
-
-	var reqBody pb.UpdateAddressRequest
-	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
-		resp := utils.BuildResponseFailed(constants.INVALID_REQUEST, err.Error(), ctx)
-		ctx.JSON(http.StatusBadRequest, resp)
-		return
+func (c *AddressController) UpdateUserAddress(ctx context.Context, req *pb.UpdateAddressRequest) (*pb.AddressResponse, error) {
+	reqBody := dto.UpdateAddressRequestDTO{
+		Label:         req.Label,
+		Address:       req.Address,
+		City:          req.City,
+		IsDefault:     req.IsDefault,
+		PostalCode:    req.PostalCode,
+		Phone:         req.Phone,
+		RecipientName: req.RecipientName,
 	}
 
-	req := dto.UpdateAddressRequestDTO{
-		Label:         reqBody.Label,
-		Address:       reqBody.Address,
-		City:          reqBody.City,
-		IsDefault:     reqBody.IsDefault,
-		PostalCode:    reqBody.PostalCode,
-		Phone:         reqBody.Phone,
-		RecipientName: reqBody.RecipientName,
-	}
-
-	updatedAddress, err := c.addressService.UpdateUserAddress(context.Background(), uint(reqBody.Id), userID, req)
+	updatedAddress, err := c.addressService.UpdateUserAddress(ctx, req.Id, req.UserId, reqBody)
 	if err != nil {
-		res := utils.BuildResponseFailed(constants.ADDRESS_UPDATE_FAILED, err.Error(), ctx)
-		ctx.JSON(http.StatusInternalServerError, res)
-		return
+		return nil, status.Errorf(codes.Internal, constants.ErrAddressServiceUpdate, err)
 	}
 
-	res := utils.BuildResponseSuccess(constants.ADDRESS_UPDATED_SUCCESSFULLY, updatedAddress)
-	ctx.JSON(http.StatusOK, res)
+	return &pb.AddressResponse{
+		Id:            updatedAddress.ID,
+		Label:         updatedAddress.Label,
+		Address:       updatedAddress.Address,
+		City:          updatedAddress.City,
+		IsDefault:     updatedAddress.IsDefault,
+		PostalCode:    updatedAddress.PostalCode,
+		Phone:         updatedAddress.Phone,
+		RecipientName: updatedAddress.RecipientName,
+	}, nil
 }
 
-func (c *AddressController) DeleteUserAddress(ctx *gin.Context) {
-	userID := ctx.MustGet("user_id").(uint64)
-	addressIDParam := ctx.Param("address_id")
-
-	addressID, err := strconv.ParseUint(addressIDParam, 10, 64)
+func (c *AddressController) DeleteUserAddress(ctx context.Context, req *pb.AddressIDRequest) (*pb.Empty, error) {
+	err := c.addressService.DeleteUserAddress(ctx, req.AddressId, req.UserId)
 	if err != nil {
-		resp := utils.BuildResponseFailed(constants.INVALID_REQUEST, "invalid address id", ctx)
-		ctx.JSON(http.StatusBadRequest, resp)
-		return
+		return nil, status.Errorf(codes.Internal, constants.ErrAddressServiceDelete, err)
 	}
 
-	req := &pb.AddressIDRequest{
-		AddressId: addressID,
-		UserId:    userID,
-	}
-
-	err = c.addressService.DeleteUserAddress(context.Background(), uint(req.AddressId), uint(req.UserId))
-	if err != nil {
-		res := utils.BuildResponseFailed(constants.ADDRESS_DELETION_FAILED, err.Error(), ctx)
-		ctx.JSON(http.StatusInternalServerError, res)
-		return
-	}
-
-	res := utils.BuildResponseSuccess(constants.ADDRESS_DELETED_SUCCESSFULLY, nil)
-	ctx.JSON(http.StatusOK, res)
+	return &pb.Empty{}, nil
 }

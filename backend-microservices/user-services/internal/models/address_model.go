@@ -3,8 +3,8 @@ package models
 import "time"
 
 type UserAddress struct {
-	ID            uint   `gorm:"primaryKey"`
-	UserID        uint   `gorm:"not null"`
+	ID            uint64 `gorm:"primaryKey"`
+	UserID        uint64 `gorm:"not null"`
 	Label         string `gorm:"type:varchar(50)"`
 	IsDefault     bool   `gorm:"default:false"`
 	RecipientName string `gorm:"type:varchar(100)"`

@@ -10,10 +10,10 @@ import (
 )
 
 type AddressRepository interface {
-	GetUserAddress(ctx context.Context, userId uint) ([]dto.AddressResponseDTO, error)
+	GetUserAddress(ctx context.Context, userId uint64) ([]dto.AddressResponseDTO, error)
 	CreateUserAddress(ctx context.Context, address models.UserAddress) (dto.AddressResponseDTO, error)
-	UpdateUserAddress(ctx context.Context, userId uint, address models.UserAddress) (dto.AddressResponseDTO, error)
-	DeleteUserAddress(ctx context.Context, addressId uint, userId uint) error
+	UpdateUserAddress(ctx context.Context, address models.UserAddress) (dto.AddressResponseDTO, error)
+	DeleteUserAddress(ctx context.Context, addressId uint64, userId uint64) error
 }
 
 type addressRepository struct {
@@ -26,7 +26,7 @@ func NewAddressRepository(db *gorm.DB) AddressRepository {
 	}
 }
 
-func (r *addressRepository) GetUserAddress(ctx context.Context, userId uint) ([]dto.AddressResponseDTO, error) {
+func (r *addressRepository) GetUserAddress(ctx context.Context, userId uint64) ([]dto.AddressResponseDTO, error) {
 	var address []dto.AddressResponseDTO
 
 	if err := r.db.WithContext(ctx).
@@ -61,11 +61,11 @@ func (r *addressRepository) CreateUserAddress(ctx context.Context, address model
 	}, nil
 }
 
-func (r *addressRepository) UpdateUserAddress(ctx context.Context, userId uint, address models.UserAddress) (dto.AddressResponseDTO, error) {
+func (r *addressRepository) UpdateUserAddress(ctx context.Context, address models.UserAddress) (dto.AddressResponseDTO, error) {
 	if err := r.db.WithContext(ctx).
 		Model(&models.UserAddress{}).
 		Select("id", "user_id", "label", "recipient_name", "phone", "address", "city", "postal_code", "is_default").
-		Where("user_id = ?", userId).
+		Where("user_id = ?", address.UserID).
 		Updates(&address).Error; err != nil {
 		return dto.AddressResponseDTO{}, err
 	}
@@ -83,7 +83,7 @@ func (r *addressRepository) UpdateUserAddress(ctx context.Context, userId uint, 
 	}, nil
 }
 
-func (r *addressRepository) DeleteUserAddress(ctx context.Context, addressId uint, userId uint) error {
+func (r *addressRepository) DeleteUserAddress(ctx context.Context, addressId uint64, userId uint64) error {
 	if err := r.db.WithContext(ctx).
 		Model(&models.UserAddress{}).
 		Where("user_id = ? AND id = ?", userId, addressId).
