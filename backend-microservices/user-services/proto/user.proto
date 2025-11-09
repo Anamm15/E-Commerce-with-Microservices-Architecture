@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "/pb";
+
+import "google/protobuf/timestamp.proto";
+
+// -------------------
+//  Message Definitions
+// -------------------
+
+message UserResponse {
+  uint64 id = 1;
+  string full_name = 2;
+  string username = 3;
+  string email = 4;
+  string avatar_url = 5;
+  string role = 6;
+  google.protobuf.Timestamp member_since = 7;
+}
+
+message UserCreateRequest {
+  string full_name = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
+}
+
+message UserUpdateRequest {
+  uint64 id = 1;
+  string full_name = 2;
+  string username = 3;
+  string email = 4;
+  string password = 5;
+  string avatar_url = 6;
+}
+
+message UserDeleteRequest {
+  uint64 id = 1;
+}
+
+message Empty {}
+
+message UserList {
+  repeated UserResponse users = 1;
+}
+
+message GetUserRequest {
+  uint64 id = 1;
+}
+
+// -------------------
+//  Service Definition
+// -------------------
+
+service UserService {
+  rpc CreateUser (UserCreateRequest) returns (UserResponse);
+  rpc GetUserByUsername (GetUserByUsernameRequest) returns (UserResponse);
+  rpc GetUserByID(GetUserRequest) returns (UserResponse);
+  rpc GetAllUsers (Empty) returns (UserList);
+  rpc UpdateUser (UserUpdateRequest) returns (UserResponse);
+  rpc DeleteUser (UserDeleteRequest) returns (Empty);
+}
+
+// -------------------
+//  Supporting Messages
+// -------------------
+
+message GetUserByUsernameRequest {
+  string username = 1;
+}

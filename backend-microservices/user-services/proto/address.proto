@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "/pb";
+
+import "proto/user.proto";
+
+message CreateAddressRequest {
+  uint64 user_id = 1;
+  string label = 2;
+  string recipient_name = 3;
+  string phone = 4;
+  string address = 5;
+  string city = 6;
+  string postal_code = 7;
+}
+
+message UpdateAddressRequest {
+  uint64 id = 1;
+  uint64 user_id = 2;
+  string label = 3;
+  string recipient_name = 4;
+  string phone = 5;
+  string address = 6;
+  string city = 7;
+  string postal_code = 8;
+  bool is_default = 9;
+}
+
+message AddressIDRequest {
+  uint64 address_id = 1;
+  uint64 user_id = 2;
+}
+
+message GetAddressRequest {
+  uint64 user_id = 1;
+}
+
+message AddressResponse {
+  uint64 id = 1;
+  uint64 user_id = 2;
+  string label = 3;
+  string recipient_name = 4;
+  string phone = 5;
+  string address = 6;
+  string city = 7;
+  string postal_code = 8;
+  bool is_default = 9;
+}
+
+message AddressListResponse {
+  repeated AddressResponse addresses = 1;
+}
+
+service AddressService {
+  rpc GetUserAddress(GetAddressRequest) returns (AddressListResponse);
+  rpc CreateUserAddress(CreateAddressRequest) returns (AddressResponse);
+  rpc UpdateUserAddress(UpdateAddressRequest) returns (AddressResponse);
+  rpc DeleteUserAddress(AddressIDRequest) returns (Empty);
+}
