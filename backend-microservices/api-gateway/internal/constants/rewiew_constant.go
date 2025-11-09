@@ -1,8 +1,6 @@
 package constants
 
 const (
-	ContextKeyUserID = "user_id"
-
 	ErrReviewIDOrLoginRequired = "review id or login is required"
 	ErrReviewIDRequired        = "review id is required"
 	ErrGetReviews              = "Failed to get reviews"
