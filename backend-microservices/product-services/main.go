@@ -1,76 +1,90 @@
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-*.test
+package main
 
-# Build directories
-bin/
-build/
-dist/
+import (
+	"context"
+	"fmt"
+	"log"
+	"net"
+	"os"
+	"product-services/internal/configs"
+	"product-services/internal/controllers"
+	"product-services/internal/kafka"
+	"product-services/internal/repositories"
+	"product-services/internal/services"
+	"product-services/internal/storages"
 
-# Compiled object files, caches, etc.
-*.o
-*.a
-*.out
+	productpb "product-services/pb"
+	userpb "product-services/pb/user"
 
-# Go workspace and module caches
-go.work
-go.work.sum
+	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
+)
 
-# Local development environment
-.vscode/
-.idea/
-*.swp
+func main() {
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "development"
+	}
+	envFile := fmt.Sprintf(".env.%s", env)
+	if err := godotenv.Load(envFile); err != nil {
+		log.Printf("⚠️  Cannot load file %s, Trying .env default...", envFile)
+		_ = godotenv.Load(".env")
+	}
 
-# ===============================
-# Logs & Temp Files
-# ===============================
-*.log
-*.tmp
-*.pid
-*.seed
-*.bak
-*.old
-*.orig
+	ctx := context.Background()
+	storage, err := storages.NewFirebaseStorage(ctx)
+	if err != nil {
+		log.Fatalf("Failed to connect to Firebase: %v", err)
+	}
 
-# ===============================
-# Environment & Config Files
-# ===============================
-# Ignore all .env files except example and environment templates
-.env
-.env.*
-!.env.example
-!.env.production
-!.env.development
-!.env.test
+	//🔹Initializing connection to user service
+	userServiceAddr := os.Getenv("USER_SERVICE_ADDR")
+	if userServiceAddr == "" {
+		userServiceAddr = "localhost:10001" // gRPC port user-service
+	}
+	userConn, err := grpc.Dial(userServiceAddr, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("failed to connect to user service: %v", err)
+	}
+	defer userConn.Close()
+	userClient := userpb.NewUserServiceClient(userConn)
 
-# ===============================
-# Dependency Manager (if any)
-# ===============================
-vendor/
+	db := configs.ConnectDatabase()
 
-# ===============================
-# OS-specific files
-# ===============================
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
+	kafkaProducer := kafka.NewKafkaProducer()
+	defer kafkaProducer.Close()
 
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+	categoryRepository := repositories.NewCategoryRepository(db)
+	productRepository := repositories.NewProductRepository(db)
+	imageRepository := repositories.NewImageRepository(db)
+	reviewRepository := repositories.NewReviewRepository(db)
 
-# Linux
-*~
+	categoryService := services.NewCategoryService(categoryRepository)
+	productService := services.NewProductService(categoryRepository, productRepository, imageRepository, storage)
+	reviewService := services.NewReviewService(reviewRepository, userClient)
 
-# ===============================
-# Other common ignored folders
-# ===============================
-node_modules/
-coverage/
-tmp/
-cache/
+	categoryController := controllers.NewCategoryServer(categoryService)
+	productController := controllers.NewProductServer(productService)
+	reviewController := controllers.NewReviewServer(reviewService)
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "10002"
+	}
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	grpcServer := grpc.NewServer()
+
+	productpb.RegisterCategoryServiceServer(grpcServer, categoryController)
+	productpb.RegisterProductServiceServer(grpcServer, productController)
+	productpb.RegisterReviewServiceServer(grpcServer, reviewController)
+
+	log.Printf("🚀 gRPC server (ProductService) listening at %v", lis.Addr())
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalf("failed to serve gRPC: %v", err)
+	}
+}

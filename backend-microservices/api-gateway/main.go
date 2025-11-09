@@ -9,17 +9,24 @@ import (
 
 func main() {
 	// 1️⃣ Inisialisasi koneksi ke service-service lewat gRPC
-	// authClient, err := grpc_clients.NewAuthClient("localhost:50051")
-	// if err != nil {
-	// 	log.Fatalf("gagal konek ke auth service: %v", err)
-	// }
 	userServiceClient, err := grpc_clients.NewUserClient("localhost:10001")
 	if err != nil {
-		log.Fatalf("gagal konek ke user service: %v", err)
+		log.Fatalf("Failed to connect to UserService: %v", err)
+	}
+
+	productClient, err := grpc_clients.NewProductServiceClient("localhost:10002")
+	if err != nil {
+		log.Fatalf("Failed to connect to ProductService: %v", err)
 	}
 
 	// 2️⃣ Buat router Gin dan inject client-nya
-	r := routes.SetupRouter(userServiceClient.UserClient, userServiceClient.AddressClient)
+	r := routes.SetupRouter(
+		userServiceClient.UserClient,
+		userServiceClient.AddressClient,
+		productClient.CategoryClient,
+		productClient.ProductClient,
+		productClient.ReviewClient,
+	)
 
 	// 3️⃣ Jalankan API Gateway
 	log.Println("API Gateway berjalan di port 10000 🚀")

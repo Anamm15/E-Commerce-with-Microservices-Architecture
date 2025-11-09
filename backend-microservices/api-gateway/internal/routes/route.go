@@ -1,13 +1,23 @@
 package routes
 
 import (
+	categoryController "api-gateway/internal/controllers/product"
+	productController "api-gateway/internal/controllers/product"
+	reviewController "api-gateway/internal/controllers/product"
 	userController "api-gateway/internal/controllers/user"
+	productpb "api-gateway/internal/pb/product"
 	userpb "api-gateway/internal/pb/user"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(userClient userpb.UserServiceClient, addressClient userpb.AddressServiceClient) *gin.Engine {
+func SetupRouter(
+	userClient userpb.UserServiceClient,
+	addressClient userpb.AddressServiceClient,
+	categoryClient productpb.CategoryServiceClient,
+	productClient productpb.ProductServiceClient,
+	reviewClient productpb.ReviewServiceClient,
+) *gin.Engine {
 	r := gin.Default()
 	api := r.Group("/api/v1")
 
@@ -16,7 +26,15 @@ func SetupRouter(userClient userpb.UserServiceClient, addressClient userpb.Addre
 	addressCtrl := userController.NewAddressController(addressClient)
 
 	// 🔹 Registrasi route
+	categoryCtrl := categoryController.NewCategoryController(categoryClient)
+	productCtrl := productController.NewProductController(productClient)
+	reviewCtrl := reviewController.NewReviewController(reviewClient)
+
+	// 🔹 Registrasi route
 	UserRoute(api, userCtrl, addressCtrl)
+	CategoryRoute(api, categoryCtrl)
+	ProductRoute(api, productCtrl)
+	ReviewRoute(api, reviewCtrl)
 
 	return r
 }

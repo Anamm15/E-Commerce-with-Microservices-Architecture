@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package product;
+
+option go_package = "/internal/pb/product;productpb";
+
+import "google/protobuf/empty.proto";
+
+// -------------------------------------
+// Message Definitions
+// -------------------------------------
+
+message Category {
+  uint64 id = 1;
+  string name = 2;
+}
+
+// -------------------------------------
+// Request DTOs
+// -------------------------------------
+
+message CreateCategoryRequest {
+  string name = 1;
+}
+
+message UpdateCategoryRequest {
+  uint64 id = 1;
+  string name = 2;
+}
+
+message DeleteCategoryRequest {
+  uint64 id = 1;
+}
+
+// -------------------------------------
+// Response DTOs
+// -------------------------------------
+
+message CategoryListResponse {
+  repeated Category categories = 1;
+}
+
+message CategoryResponse {
+  Category category = 1;
+}
+
+// -------------------------------------
+// Service Definition
+// -------------------------------------
+
+service CategoryService {
+  rpc GetAllCategories(google.protobuf.Empty) returns (CategoryListResponse);
+  rpc CreateCategory(CreateCategoryRequest) returns (CategoryResponse);
+  rpc UpdateCategory(UpdateCategoryRequest) returns (CategoryResponse);
+  rpc DeleteCategory(DeleteCategoryRequest) returns (google.protobuf.Empty);
+}

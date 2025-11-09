@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package product;
+
+option go_package = "/pb";
+
+import "google/protobuf/empty.proto";
+import "proto/category.proto";
+
+// -------------------------------------
+// Message Definitions
+// -------------------------------------
+
+message Image {
+  uint64 id = 1;
+  string url = 2;
+}
+// -------------------------------------
+// Request DTOs
+// -------------------------------------
+
+message CreateProductRequest {
+  string name = 1;
+  string description = 2;
+  repeated uint64 category = 3;     
+  float price = 4;
+  float old_price = 5;
+  int32 stock = 6;
+  bool is_new = 7;
+  repeated bytes images = 8;       
+}
+
+message UpdateProductRequest {
+  uint64 id = 1;
+  string name = 2;
+  string description = 3;
+  repeated uint64 category = 4;
+  float price = 5;
+  float old_price = 6;
+  int32 stock = 7;
+  bool is_new = 8;
+}
+
+message GetProductByIDRequest {
+  uint64 id = 1;
+}
+
+message GetProductByCategoryRequest {
+  uint64 category_id = 1;
+}
+
+message DeleteProductRequest {
+  uint64 id = 1;
+}
+
+// -------------------------------------
+// Response DTOs
+// -------------------------------------
+
+message ProductResponse {
+  uint64 id = 1;
+  string name = 2;
+  string description = 3;
+  float price = 4;
+  float old_price = 5;
+  int32 stock = 6;
+  float rating = 7;
+  bool is_new = 8;
+  repeated CategoryResponse category = 9;
+  repeated Image image_url = 10;
+}
+
+message ProductListResponse {
+  repeated ProductResponse products = 1;
+}
+
+// -------------------------------------
+// Service Definition
+// -------------------------------------
+
+service ProductService {
+  rpc GetAllProducts(google.protobuf.Empty) returns (ProductListResponse);
+  rpc GetProductByID(GetProductByIDRequest) returns (ProductResponse);
+  rpc GetProductByCategoryID(GetProductByCategoryRequest) returns (ProductListResponse);
+  rpc CreateProduct(CreateProductRequest) returns (ProductResponse);
+  rpc UpdateProduct(UpdateProductRequest) returns (ProductResponse);
+  rpc DeleteProduct(DeleteProductRequest) returns (google.protobuf.Empty);
+}
