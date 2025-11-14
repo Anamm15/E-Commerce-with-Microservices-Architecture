@@ -4,10 +4,12 @@ const (
 	ErrGetUser    = "Failed to get user"
 	ErrGetUsers   = "Failed to get users"
 	ErrCreateUser = "Failed to create user"
+	ErrLoginUser  = "Failed to login user"
 	ErrUpdateUser = "Failed to update user"
 	ErrDeleteUser = "Failed to delete user"
 
 	SuccessUserCreated  = "User created succesfully"
+	SuccessUserLogin    = "User logged in succesfully"
 	SuccessUserFetched  = "User retrieved succesfully"
 	SuccessUsersFetched = "Users retrieved succesfully"
 	SuccessUserUpdated  = "User updated succesfully"

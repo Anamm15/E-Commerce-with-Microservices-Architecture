@@ -22,7 +22,23 @@ func NewUserController(service services.UserService) *UserController {
 	return &UserController{service: service}
 }
 
-func (c *UserController) CreateUser(ctx context.Context, req *pb.UserCreateRequest) (*pb.UserResponse, error) {
+func (c *UserController) LoginUser(ctx context.Context, req *pb.UserLoginRequest) (*pb.UserLoginResponse, error) {
+	userLogin := dto.UserLoginDTO{
+		Email:    req.Email,
+		Password: req.Password,
+	}
+
+	token, err := c.service.LoginUser(ctx, userLogin)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, constants.ErrUserServiceLogin, err)
+	}
+
+	return &pb.UserLoginResponse{
+		Token: token,
+	}, nil
+}
+
+func (c *UserController) RegisterUser(ctx context.Context, req *pb.UserCreateRequest) (*pb.UserResponse, error) {
 	userCreate := dto.UserCreateDTO{
 		FullName: req.FullName,
 		Username: req.Username,
@@ -30,7 +46,7 @@ func (c *UserController) CreateUser(ctx context.Context, req *pb.UserCreateReque
 		Password: req.Password,
 	}
 
-	createdUser, err := c.service.CreateUser(ctx, userCreate)
+	createdUser, err := c.service.RegisterUser(ctx, userCreate)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, constants.ErrUserServiceCreate, err)
 	}

@@ -9,7 +9,7 @@ import (
 
 type User struct {
 	ID          uint64        `gorm:"primaryKey"`
-	FullName    string        `gorm:"type:varchar(100)"`
+	FullName    string        `gorm:"type:varchar(100); not null"`
 	Username    string        `gorm:"unique;not null"`
 	Email       string        `gorm:"unique;not null"`
 	AvatarUrl   string        `gorm:"type:text"`
@@ -35,6 +35,14 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 
 func (u *User) BeforeUpdate(tx *gorm.DB) (err error) {
 	if tx.Statement.Changed("Password") && len(u.Password) > 0 {
+
+		// cek apakah password sudah hash bcrypt
+		_, costErr := bcrypt.Cost([]byte(u.Password))
+		if costErr == nil {
+			// berarti ini sudah hash, jangan hash ulang
+			return nil
+		}
+
 		hashed, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return err

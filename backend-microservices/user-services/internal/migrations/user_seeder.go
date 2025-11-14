@@ -7,7 +7,6 @@ import (
 
 	"user-services/internal/models"
 
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -19,18 +18,13 @@ func SeedUsers(db *gorm.DB) error {
 		return nil
 	}
 
-	hashPassword := func(pw string) string {
-		hash, _ := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost)
-		return string(hash)
-	}
-
 	users := []models.User{
 		{
 			FullName:    "Admin One",
 			Username:    "admin1",
 			Email:       "admin1@example.com",
 			AvatarUrl:   "https://i.pravatar.cc/150?img=1",
-			Password:    hashPassword("password123"),
+			Password:    "password123",
 			Role:        "admin",
 			IsConfirmed: true,
 			MemberSince: time.Now(),
@@ -40,7 +34,7 @@ func SeedUsers(db *gorm.DB) error {
 			Username:    "admin2",
 			Email:       "admin2@example.com",
 			AvatarUrl:   "https://i.pravatar.cc/150?img=2",
-			Password:    hashPassword("password123"),
+			Password:    "password123",
 			Role:        "admin",
 			IsConfirmed: true,
 			MemberSince: time.Now(),
@@ -50,7 +44,7 @@ func SeedUsers(db *gorm.DB) error {
 			Username:    "user1",
 			Email:       "user1@example.com",
 			AvatarUrl:   "https://i.pravatar.cc/150?img=3",
-			Password:    hashPassword("password123"),
+			Password:    "password123",
 			Role:        "user",
 			IsConfirmed: true,
 			MemberSince: time.Now(),
@@ -60,7 +54,7 @@ func SeedUsers(db *gorm.DB) error {
 			Username:    "user2",
 			Email:       "user2@example.com",
 			AvatarUrl:   "https://i.pravatar.cc/150?img=4",
-			Password:    hashPassword("password123"),
+			Password:    "password123",
 			Role:        "user",
 			IsConfirmed: false,
 			MemberSince: time.Now(),
@@ -70,7 +64,7 @@ func SeedUsers(db *gorm.DB) error {
 			Username:    "user3",
 			Email:       "user3@example.com",
 			AvatarUrl:   "https://i.pravatar.cc/150?img=5",
-			Password:    hashPassword("password123"),
+			Password:    "password123",
 			Role:        "user",
 			IsConfirmed: true,
 			MemberSince: time.Now(),

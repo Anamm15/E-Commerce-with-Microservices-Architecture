@@ -54,8 +54,18 @@ message UserList {
   repeated UserResponse users = 1;
 }
 
+message UserLoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message UserLoginResponse {
+  string token = 1;
+}
+
 service UserService {
-  rpc CreateUser (UserCreateRequest) returns (UserResponse);
+  rpc LoginUser (UserLoginRequest) returns (UserLoginResponse);
+  rpc RegisterUser (UserCreateRequest) returns (UserResponse);
   rpc GetUserByUsername (GetUserByUsernameRequest) returns (UserResponse);
   rpc GetAllUsers (Empty) returns (UserList);
   rpc UpdateUser (UserUpdateRequest) returns (UserResponse);

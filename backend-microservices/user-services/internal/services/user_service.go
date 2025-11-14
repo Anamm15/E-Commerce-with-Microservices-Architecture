@@ -2,16 +2,21 @@ package services
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
+	"user-services/internal/constants"
 	"user-services/internal/dto"
 	"user-services/internal/repositories"
+	"user-services/internal/utils"
 )
 
 type UserService interface {
 	GetAllUsers(ctx context.Context) ([]dto.UserResponseDTO, error)
 	GetUserByID(ctx context.Context, userId uint64) (dto.UserResponseDTO, error)
 	GetUserByUsername(ctx context.Context, username string) (dto.UserResponseDTO, error)
-	CreateUser(ctx context.Context, user dto.UserCreateDTO) (dto.UserResponseDTO, error)
+	LoginUser(ctx context.Context, user dto.UserLoginDTO) (string, error)
+	RegisterUser(ctx context.Context, user dto.UserCreateDTO) (dto.UserResponseDTO, error)
 	UpdateUser(ctx context.Context, user dto.UserUpdateDTO) (dto.UserResponseDTO, error)
 	DeleteUser(ctx context.Context, userId uint64) error
 }
@@ -46,7 +51,27 @@ func (s *userService) GetUserByUsername(ctx context.Context, username string) (d
 	return user, nil
 }
 
-func (s *userService) CreateUser(ctx context.Context, user dto.UserCreateDTO) (dto.UserResponseDTO, error) {
+func (s *userService) LoginUser(ctx context.Context, user dto.UserLoginDTO) (string, error) {
+	userData, err := s.userRepository.FindUserEmail(ctx, user.Email)
+	if err != nil {
+		return "", errors.New(constants.ErrEmailPasswordIncorrect)
+	}
+
+	isMatch := utils.MatchPassword(userData.Password, user.Password)
+	if !isMatch {
+		return "", errors.New(constants.ErrEmailPasswordIncorrect)
+	}
+
+	fmt.Println(userData)
+	token, err := utils.GenerateTokenJWT(userData.ID, userData.Role)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (s *userService) RegisterUser(ctx context.Context, user dto.UserCreateDTO) (dto.UserResponseDTO, error) {
 	createdUser, err := s.userRepository.CreateUser(ctx, user.ToModel())
 	if err != nil {
 		return dto.UserResponseDTO{}, err

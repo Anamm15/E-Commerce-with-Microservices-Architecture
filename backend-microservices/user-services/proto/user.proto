@@ -50,12 +50,23 @@ message GetUserRequest {
   uint64 id = 1;
 }
 
+message UserLoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message UserLoginResponse {
+  string token = 1;
+}
+
+
 // -------------------
 //  Service Definition
 // -------------------
 
 service UserService {
-  rpc CreateUser (UserCreateRequest) returns (UserResponse);
+  rpc LoginUser (UserLoginRequest) returns (UserLoginResponse);
+  rpc RegisterUser (UserCreateRequest) returns (UserResponse);
   rpc GetUserByUsername (GetUserByUsernameRequest) returns (UserResponse);
   rpc GetUserByID(GetUserRequest) returns (UserResponse);
   rpc GetAllUsers (Empty) returns (UserList);

@@ -14,12 +14,12 @@ type AddressResponseDTO struct {
 
 type CreateAddressRequestDTO struct {
 	UserID        uint64 `json:"user_id"`
-	Label         string `json:"label" binding:"required"`
-	RecipientName string `json:"recipient_name" binding:"required"`
-	Phone         string `json:"phone" binding:"required"`
-	Address       string `json:"address" binding:"required"`
-	City          string `json:"city" binding:"required"`
-	PostalCode    string `json:"postal_code" binding:"required"`
+	Label         string `json:"label"`
+	RecipientName string `json:"recipient_name"`
+	Phone         string `json:"phone"`
+	Address       string `json:"address"`
+	City          string `json:"city"`
+	PostalCode    string `json:"postal_code"`
 }
 
 type UpdateAddressRequestDTO struct {

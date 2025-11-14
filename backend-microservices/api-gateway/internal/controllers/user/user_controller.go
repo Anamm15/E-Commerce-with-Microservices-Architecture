@@ -20,7 +20,28 @@ func NewUserController(UserClient userpb.UserServiceClient) *UserController {
 	return &UserController{UserClient: UserClient}
 }
 
-func (uc *UserController) CreateUser(c *gin.Context) {
+func (uc *UserController) LoginUser(c *gin.Context) {
+	var req dto.UserLoginDTO
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed(constants.ErrInvalidRequest, err.Error(), nil))
+		return
+	}
+
+	grpcReq := &userpb.UserLoginRequest{
+		Email:    req.Email,
+		Password: req.Password,
+	}
+
+	resp, err := uc.UserClient.LoginUser(context.Background(), grpcReq)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed(constants.ErrLoginUser, err.Error(), nil))
+		return
+	}
+
+	c.JSON(http.StatusOK, utils.BuildResponseSuccess(constants.SuccessUserLogin, resp))
+}
+
+func (uc *UserController) RegisterUser(c *gin.Context) {
 	var req dto.UserCreateDTO
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, utils.BuildResponseFailed(constants.ErrInvalidRequest, err.Error(), nil))
@@ -34,7 +55,7 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 		Password: req.Password,
 	}
 
-	resp, err := uc.UserClient.CreateUser(context.Background(), grpcReq)
+	resp, err := uc.UserClient.RegisterUser(context.Background(), grpcReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.BuildResponseFailed(constants.ErrCreateUser, err.Error(), nil))
 		return
