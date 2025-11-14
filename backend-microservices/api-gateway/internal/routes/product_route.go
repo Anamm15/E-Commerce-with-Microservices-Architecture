@@ -30,7 +30,7 @@ func ProductRoute(router *gin.RouterGroup, productController controllers.Product
 }
 
 func ReviewRoute(router *gin.RouterGroup, reviewController controllers.ReviewController) {
-	reviewGroup := router.Group("/api/v1/reviews")
+	reviewGroup := router.Group("/reviews")
 	{
 		reviewGroup.GET("/", reviewController.GetAllReviews)
 		reviewGroup.GET("/:productId", reviewController.GetReviewByProductID)

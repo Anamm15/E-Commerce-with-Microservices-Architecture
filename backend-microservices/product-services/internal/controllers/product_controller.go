@@ -112,6 +112,7 @@ func (s *ProductServer) CreateProduct(ctx context.Context, req *pb.CreateProduct
 		OldPrice:    req.OldPrice,
 		Stock:       req.Stock,
 		Category:    req.Category,
+		Images:      req.Images,
 	}
 
 	product, err := s.productService.CreateProduct(ctx, dtoReq)

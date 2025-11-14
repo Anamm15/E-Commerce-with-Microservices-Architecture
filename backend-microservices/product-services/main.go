@@ -6,9 +6,10 @@ import (
 	"log"
 	"net"
 	"os"
+
 	"product-services/internal/configs"
 	"product-services/internal/controllers"
-	"product-services/internal/kafka"
+	// "product-services/internal/kafka"
 	"product-services/internal/repositories"
 	"product-services/internal/services"
 	"product-services/internal/storages"
@@ -40,7 +41,7 @@ func main() {
 	//🔹Initializing connection to user service
 	userServiceAddr := os.Getenv("USER_SERVICE_ADDR")
 	if userServiceAddr == "" {
-		userServiceAddr = "localhost:10001" // gRPC port user-service
+		userServiceAddr = "localhost:10001"
 	}
 	userConn, err := grpc.Dial(userServiceAddr, grpc.WithInsecure())
 	if err != nil {
@@ -51,8 +52,8 @@ func main() {
 
 	db := configs.ConnectDatabase()
 
-	kafkaProducer := kafka.NewKafkaProducer()
-	defer kafkaProducer.Close()
+	// kafkaProducer := kafka.NewKafkaProducer()
+	// defer kafkaProducer.Close()
 
 	categoryRepository := repositories.NewCategoryRepository(db)
 	productRepository := repositories.NewProductRepository(db)

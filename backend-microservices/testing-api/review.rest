@@ -1,0 +1,4 @@
+@baseUrl = http://localhost:10000/api/v1/reviews
+
+###
+GET {{baseUrl}}

@@ -1,6 +1,7 @@
 package product
 
 import (
+	"io"
 	"net/http"
 
 	constants "api-gateway/internal/constants"
@@ -60,7 +61,7 @@ func (c *productController) GetProductById(ctx *gin.Context) {
 		return
 	}
 
-	res := utils.BuildResponseSuccess(constants.SuccessGetProduct, product.Product)
+	res := utils.BuildResponseSuccess(constants.SuccessGetProduct, product)
 	ctx.JSON(http.StatusOK, res)
 }
 
@@ -88,18 +89,42 @@ func (c *productController) GetProductByCategoryID(ctx *gin.Context) {
 
 func (c *productController) CreateProduct(ctx *gin.Context) {
 	var req dto.CreateProductRequestDTO
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBind(&req); err != nil {
 		res := utils.BuildResponseFailed(constants.ErrInvalidRequest, err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
+	var imageBytes [][]byte
+
+	for _, fileHeader := range req.Images {
+		file, err := fileHeader.Open()
+		if err != nil {
+			res := utils.BuildResponseFailed("failed to open image", err.Error(), nil)
+			ctx.JSON(http.StatusBadRequest, res)
+			return
+		}
+		defer file.Close()
+
+		data, err := io.ReadAll(file)
+		if err != nil {
+			res := utils.BuildResponseFailed("failed to read image", err.Error(), nil)
+			ctx.JSON(http.StatusInternalServerError, res)
+			return
+		}
+
+		imageBytes = append(imageBytes, data)
+	}
+
 	gRPCReq := &productpb.CreateProductRequest{
 		Name:        req.Name,
 		Description: req.Description,
-		Price:       req.Price,
-		Stock:       req.Stock,
 		Category:    req.Category,
+		Price:       req.Price,
+		OldPrice:    req.OldPrice,
+		Stock:       req.Stock,
+		IsNew:       req.IsNew,
+		Images:      imageBytes,
 	}
 
 	product, err := c.productClient.CreateProduct(ctx, gRPCReq)
@@ -109,7 +134,7 @@ func (c *productController) CreateProduct(ctx *gin.Context) {
 		return
 	}
 
-	res := utils.BuildResponseSuccess(constants.SuccessCreateProduct, product.Product)
+	res := utils.BuildResponseSuccess(constants.SuccessCreateProduct, product)
 	ctx.JSON(http.StatusCreated, res)
 }
 
@@ -136,6 +161,8 @@ func (c *productController) UpdateProduct(ctx *gin.Context) {
 		Price:       req.Price,
 		Stock:       req.Stock,
 		Category:    req.Category,
+		IsNew:       req.IsNew,
+		OldPrice:    req.OldPrice,
 	}
 
 	product, err := c.productClient.UpdateProduct(ctx, gRPCReq)
@@ -145,7 +172,7 @@ func (c *productController) UpdateProduct(ctx *gin.Context) {
 		return
 	}
 
-	res := utils.BuildResponseSuccess(constants.SuccessUpdateProduct, product.Product)
+	res := utils.BuildResponseSuccess(constants.SuccessUpdateProduct, product)
 	ctx.JSON(http.StatusOK, res)
 }
 

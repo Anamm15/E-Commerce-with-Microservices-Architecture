@@ -1,10 +1,9 @@
 package services
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"io"
-	"log"
 	"net/http"
 	"time"
 
@@ -83,56 +82,31 @@ func (s *productService) CreateProduct(ctx context.Context, productRequest dto.C
 	}
 
 	if len(productRequest.Images) > 0 {
-		for _, fileHeader := range productRequest.Images {
-			file, err := fileHeader.Open()
+		for i, imgBytes := range productRequest.Images {
+			if len(imgBytes) == 0 {
+				continue
+			}
+
+			path := fmt.Sprintf("e-commerce/products/%d/%d_%d.jpg", createdProduct.ID, time.Now().UnixNano(), i)
+			contentType := http.DetectContentType(imgBytes[:512])
+
+			reader := bytes.NewReader(imgBytes)
+			url, err := s.storage.UploadFile(ctx, path, reader, contentType)
 			if err != nil {
-				return dto.ProductResponseDTO{}, fmt.Errorf("gagal membuka file %s: %w", fileHeader.Filename, err)
+				return dto.ProductResponseDTO{}, fmt.Errorf("gagal upload file: %w", err)
 			}
 
-			uploadErr := func() error {
-				defer file.Close()
-
-				path := fmt.Sprintf("products/%d/%d_%s", createdProduct.ID, time.Now().UnixNano(), fileHeader.Filename)
-				contentType := fileHeader.Header.Get("Content-Type")
-
-				if contentType == "" {
-					buf := make([]byte, 512)
-					n, err := file.Read(buf)
-					if err != nil && err != io.EOF {
-						return fmt.Errorf("gagal membaca file untuk deteksi content-type: %w", err)
-					}
-
-					contentType = http.DetectContentType(buf[:n])
-
-					if _, err = file.Seek(0, io.SeekStart); err != nil {
-						return fmt.Errorf("gagal reset file reader: %w", err)
-					}
-				}
-
-				url, err := s.storage.UploadFile(ctx, path, file, contentType)
-				if err != nil {
-					return fmt.Errorf("gagal upload file: %w", err)
-				}
-
-				image := models.Image{
-					ProductID: createdProduct.ID,
-					URL:       url,
-				}
-
-				var createdImage dto.ImageResponseDTO
-				createdImage, err = s.imageRepository.CreateImage(ctx, &image)
-				if err != nil {
-					return fmt.Errorf("gagal menyimpan URL gambar ke db: %w", err)
-				}
-
-				createdProduct.ImageUrl = append(createdProduct.ImageUrl, createdImage)
-				return nil
-			}()
-
-			if uploadErr != nil {
-				log.Printf("Gagal meng-upload file: %v", uploadErr)
-				return dto.ProductResponseDTO{}, uploadErr
+			image := models.Image{
+				ProductID: createdProduct.ID,
+				URL:       url,
 			}
+
+			createdImage, err := s.imageRepository.CreateImage(ctx, &image)
+			if err != nil {
+				return dto.ProductResponseDTO{}, fmt.Errorf("gagal menyimpan URL gambar ke db: %w", err)
+			}
+
+			createdProduct.ImageUrl = append(createdProduct.ImageUrl, createdImage)
 		}
 	}
 
