@@ -28,3 +28,12 @@ type UserUpdateDTO struct {
 	Password  string `json:"password" binding:"omitempty,min=6"`
 	AvatarUrl string `json:"avatar_url" binding:"omitempty,url"`
 }
+
+type UserLoginDTO struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+type LoginResponseDTO struct {
+	Token string `json:"token"`
+}

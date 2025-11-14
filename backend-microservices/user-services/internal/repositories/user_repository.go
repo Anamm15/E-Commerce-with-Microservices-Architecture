@@ -12,6 +12,7 @@ import (
 type UserRepository interface {
 	FindAllUsers(ctx context.Context) ([]dto.UserResponseDTO, error)
 	FindUserByID(ctx context.Context, userId uint64) (dto.UserResponseDTO, error)
+	FindUserEmail(ctx context.Context, email string) (dto.UserEmailResponseDTO, error)
 	FindUserByUsername(ctx context.Context, username string) (dto.UserResponseDTO, error)
 	CreateUser(ctx context.Context, user models.User) (dto.UserResponseDTO, error)
 	UpdateUser(ctx context.Context, user models.User) (dto.UserResponseDTO, error)
@@ -65,6 +66,22 @@ func (r *userRepository) FindUserByUsername(ctx context.Context, username string
 	}
 
 	return user, nil
+}
+
+func (r *userRepository) FindUserEmail(ctx context.Context, email string) (dto.UserEmailResponseDTO, error) {
+	var user models.User
+	if err := r.db.WithContext(ctx).
+		Model(&models.User{}).
+		Where("email = ?", email).
+		Select("id", "email", "password", "role").
+		First(&user).Error; err != nil {
+		return dto.UserEmailResponseDTO{}, err
+	}
+	return dto.UserEmailResponseDTO{
+		ID:       user.ID,
+		Role:     user.Role,
+		Password: user.Password,
+	}, nil
 }
 
 func (r *userRepository) CreateUser(ctx context.Context, user models.User) (dto.UserResponseDTO, error) {

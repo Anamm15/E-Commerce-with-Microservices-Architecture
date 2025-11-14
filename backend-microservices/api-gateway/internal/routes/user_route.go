@@ -10,9 +10,10 @@ import (
 func UserRoute(router *gin.RouterGroup, userController *userController.UserController, addressController *userController.AddressController) {
 	user := router.Group("/users")
 	{
-		user.GET("", userController.GetUserByUsername)
 		user.GET("/", userController.GetAllUsers)
-		user.POST("/", userController.CreateUser)
+		user.GET("", userController.GetUserByUsername)
+		user.POST("/", userController.RegisterUser)
+		user.POST("/login", userController.LoginUser)
 		user.PATCH("/:id", userController.UpdateUser)
 		user.DELETE("/:id", userController.DeleteUser)
 

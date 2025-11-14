@@ -29,22 +29,33 @@ type UserResponseDTO struct {
 }
 
 type UserCreateDTO struct {
-	FullName string `json:"full_name" binding:"required"`
-	Username string `json:"username" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
+	FullName string `json:"full_name"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type UserUpdateDTO struct {
-	FullName  string `json:"full_name" binding:"omitempty"`
-	Username  string `json:"username" binding:"omitempty"`
-	Email     string `json:"email" binding:"omitempty,email"`
-	Password  string `json:"password" binding:"omitempty,min=6"`
-	AvatarUrl string `json:"avatar_url" binding:"omitempty,url"`
+	FullName  string `json:"full_name"`
+	Username  string `json:"username"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	AvatarUrl string `json:"avatar_url"`
 }
 
 type UserDeleteDTO struct {
 	Email string `json:"email" binding:"required,email"`
+}
+
+type UserLoginDTO struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type UserEmailResponseDTO struct {
+	ID       uint64 `json:"id"`
+	Role     string `json:"role"`
+	Password string `json:"password"`
 }
 
 func (dto *UserCreateDTO) ToModel() models.User {
