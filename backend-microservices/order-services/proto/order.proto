@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package order;
+
+option go_package = "pb/order";
+
+import "google/protobuf/empty.proto";
+
+message OrderItem {
+  uint64 id = 1;
+  uint64 product_id = 2;
+  int32 quantity = 3;
+  float total = 4;
+  string name = 5;
+  string image_url = 6;
+}
+
+message CreateOrderItem {
+  uint64 product_id = 2;
+  int32 quantity = 3;
+  float total = 4;
+}
+
+message OrderResponse {
+  uint64 id = 1;
+  string status = 2;
+  string date = 3;
+  float total = 4;
+  float shipping_cost = 5;
+  string tracking_number = 6;
+  int32 estimated_delivery = 7;
+  string payment_method = 8;
+  repeated OrderItem order_items = 9;
+}
+
+message OrdersListResponse {
+  repeated OrderResponse orders = 1;
+}
+
+message GetOrdersByUserRequest {
+  uint64 user_id = 1;
+}
+
+message GetOrdersByStatusRequest {
+  string status = 1;
+}
+
+message GetDetailOrderRequest {
+  uint64 order_id = 1;
+}
+
+message CreateOrderRequest {
+  uint64 user_id = 1;
+  float total = 2;
+  string payment_method = 6;
+  repeated CreateOrderItem item = 7;
+}
+
+message UpdateStatusOrderRequest {
+  uint64 order_id = 1;
+  string status = 2;
+}
+
+message DeleteOrderRequest {
+  uint64 order_id = 1;
+  uint64 user_id = 2;
+}
+
+service OrderService {
+  rpc GetOrders(google.protobuf.Empty) returns (OrdersListResponse);
+  rpc GetOrdersByUser(GetOrdersByUserRequest) returns (OrdersListResponse);
+  rpc GetOrdersByStatus(GetOrdersByStatusRequest) returns (OrdersListResponse);
+  rpc GetDetailOrder(GetDetailOrderRequest) returns (OrderResponse);
+  rpc CreateOrder(CreateOrderRequest) returns (OrderResponse);
+  rpc UpdateStatusOrder(UpdateStatusOrderRequest) returns (OrderResponse);
+  rpc DeleteOrder(DeleteOrderRequest) returns (google.protobuf.Empty);
+}

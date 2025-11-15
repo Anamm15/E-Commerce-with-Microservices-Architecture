@@ -1,0 +1,21 @@
+@baseUrl = http://localhost:10000/api/v1/orders
+
+###
+GET {{baseUrl}}
+
+###
+POST {{baseUrl}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjMyMjY3MDksImlhdCI6MTc2MzE0MDMwOSwicm9sZSI6ImFkbWluIiwidXNlcl9pZCI6N30.Ldt8EJFvQJIaloZsJjCzfqZ1RcQvc8iH-geWJiF5cB4
+Content-Type: application/json
+
+{
+   "total": 32.0,
+   "payment_method": "QRIS",
+   "item": [
+      {
+         "product_id": 2,
+         "quantity": 1,
+         "total": 32.0
+      }
+   ]
+}

@@ -1,0 +1,9 @@
+@baseUrl = http://localhost:10000/api/v1/categories
+
+###
+POST {{baseUrl}}
+Content-Type: application/json
+
+{
+   "name": "Woman"
+}

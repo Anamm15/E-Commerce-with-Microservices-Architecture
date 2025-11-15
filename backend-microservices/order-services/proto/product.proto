@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package product;
+option go_package = "pb/product;productpb";
+
+message CategoryResponse {
+  uint64 id = 1;
+  string name = 2;
+}
+
+message Image {
+  uint64 id = 1;
+  string url = 2;
+}
+
+message ProductResponse {
+  uint64 id = 1;
+  string name = 2;
+  string description = 3;
+  float price = 4;
+  float old_price = 5;
+  int32 stock = 6;
+  float rating = 7;
+  bool is_new = 8;
+  repeated CategoryResponse category = 9;
+  repeated Image image_url = 10;
+}
+
+message GetProductByIDRequest {
+  uint64 id = 1;
+}
+
+service ProductService {
+  rpc GetProductByID(GetProductByIDRequest) returns(ProductResponse);
+}
