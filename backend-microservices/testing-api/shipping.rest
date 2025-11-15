@@ -1,0 +1,12 @@
+@baseUrl = http://localhost:10000/api/v1/shipments
+
+###
+POST {{baseUrl}}/cost
+Content-Type: application/json
+
+{
+   "origin_city": "test",
+   "destination_city": "test",
+   "postal_code": "51746",
+   "weight": 5
+}

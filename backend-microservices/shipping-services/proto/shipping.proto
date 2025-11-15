@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package shipping;
+option go_package = "pb/";
+
+message Address {
+   uint64 id = 1;
+   string recipient_name = 2;
+   string phone = 3;
+   string street = 4;
+   string postal_code = 5;
+}
+
+message GetDetailShipmentRequest {
+   uint64 id = 1;
+}
+
+message ShipmentResponse {
+   uint64 id = 1;
+   string courier = 2;
+   string service_type = 3;
+   string destination_city = 4;
+   int32 weight = 5;
+   float price = 6;
+   string status = 7;
+   string tracking_number = 8;
+   int32 estimated_days = 9;
+   Address address = 10;
+}
+
+message CalculateCostShippingRequest {
+   string origin_city = 1;
+   string destination_city = 2;
+   string postal_code = 3;
+   int32 weight = 4;
+}
+
+message CalculateCostShippingResponse {
+   string courier = 1;
+   string service_type = 2;
+   float price = 3;
+   int32 estimated_days = 4;
+}
+
+message CalculateCostShippingListResponse {
+   repeated CalculateCostShippingResponse cost = 1;
+}
+
+service ShippingService {
+   rpc GetDetailShipment(GetDetailShipmentRequest) returns (ShipmentResponse);
+   rpc CalculateCostShipping(CalculateCostShippingRequest) returns (CalculateCostShippingListResponse);
+}

@@ -19,6 +19,11 @@ func main() {
 		log.Fatalf("Failed to connect to ProductService: %v", err)
 	}
 
+	shippingClient, err := grpc_clients.NewShippingClient("localhost:10004")
+	if err != nil {
+		log.Fatalf("Failed to connect to ShippingService: %v", err)
+	}
+
 	// 2️⃣ Buat router Gin dan inject client-nya
 	r := routes.SetupRouter(
 		userServiceClient.UserClient,
@@ -26,6 +31,7 @@ func main() {
 		productClient.CategoryClient,
 		productClient.ProductClient,
 		productClient.ReviewClient,
+		shippingClient.ShippingClient,
 	)
 
 	// 3️⃣ Jalankan API Gateway
